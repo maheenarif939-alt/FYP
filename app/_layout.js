@@ -20,6 +20,7 @@ export default function RootLayout() {
       <Stack.Screen name="pending-cases" />
       <Stack.Screen name="approved-cases" />
       <Stack.Screen name="doctor-verify" />
+      <Stack.Screen name="doctor-account" />
     </Stack>
   );
 }
