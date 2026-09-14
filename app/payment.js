@@ -2,14 +2,19 @@ import { Ionicons } from '@expo/vector-icons';
 import * as Clipboard from 'expo-clipboard';
 import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
-import { Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import { useState } from 'react';
+import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { analyzeCase, submitPayment } from '../api/client';
 
 export default function PayConsultationFee() {
   const router = useRouter();
+  const { caseId, caseNumber } = useLocalSearchParams();
+
   const [image, setImage] = useState(null);
-  const [uniqueId, setUniqueId] = useState('');
+  const [transactionId, setTransactionId] = useState('');
+  const [submitting, setSubmitting] = useState(false);
+  const [statusText, setStatusText] = useState('');
   const phoneNumber = "0300-1234567";
 
   const copyToClipboard = async () => {
@@ -17,26 +22,56 @@ export default function PayConsultationFee() {
     Alert.alert("Success", "Phone number copied to clipboard!");
   };
 
-  useEffect(() => {
-    setUniqueId("DCA-842195736");
-  }, []);
-
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 1,
+      allowsEditing: false,
+      quality: 0.5,
     });
     if (!result.canceled) {
       setImage(result.assets[0].uri);
     }
   };
 
+  const handleSubmitPayment = async () => {
+    if (!caseId) {
+      Alert.alert('Error', 'No case found. Please upload an image first.');
+      return;
+    }
+    if (!transactionId || !image) {
+      Alert.alert('Missing Information', 'Transaction ID and screenshot are both required.');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      setStatusText('Submitting payment...');
+      const paymentResult = await submitPayment(caseId, {
+        transaction_id: transactionId,
+        method: 'jazzcash',
+        screenshotUri: image,
+      });
+
+      setStatusText('Running AI analysis... (this may take a moment)');
+      await analyzeCase(caseId);
+
+      Alert.alert(
+        'Success',
+        `Payment submitted! Your unique reference ID is:\n\n${paymentResult.unique_id}\n\nPlease save this for your records.`
+      );
+      router.push({ pathname: '/casetracking', params: { caseId } });
+    } catch (error) {
+      Alert.alert('Failed', error.message);
+    } finally {
+      setSubmitting(false);
+      setStatusText('');
+    }
+  };
+
   return (
     <LinearGradient colors={['#F8FBFF', '#E0EAFF']} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll}>
-        
-        {/* Header */}
+
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()}>
             <Ionicons name="arrow-back" size={28} color="#3b82f6" />
@@ -44,18 +79,18 @@ export default function PayConsultationFee() {
           <Text style={styles.headerTitle}>PAY CONSULTATION FEE</Text>
         </View>
 
-        {/* Payment Card */}
         <View style={styles.card}>
           <Text style={styles.title}>Complete Your Payment</Text>
           <Text style={styles.subTitle}>Send your payment via JazzCash to the number below</Text>
-          
+          <Text style={styles.amountText}>Amount to Pay: Rs. 500</Text>
+
           <View style={styles.jazzCashBox}>
             <Text style={styles.payToText}>PAY TO THIS NUMBER</Text>
-            
+
             <TouchableOpacity style={styles.logoNumberRow} onPress={copyToClipboard}>
-              <Image 
-                source={require('../assets/jazzcash.png')} 
-                style={styles.logo} 
+              <Image
+                source={require('../assets/jazzcash.png')}
+                style={styles.logo}
                 resizeMode="contain"
               />
               <Text style={styles.number}>{phoneNumber}</Text>
@@ -75,18 +110,24 @@ export default function PayConsultationFee() {
           <Text style={styles.sectionHeading}>Payment Details</Text>
 
           <View style={styles.inputGroup}>
-            <Text style={styles.label}>Unique ID (Auto Generated)</Text>
-            <Text style={styles.value}>{uniqueId}</Text> 
+            <Text style={styles.label}>Case Reference</Text>
+            <Text style={styles.value}>{caseNumber || 'N/A'}</Text>
           </View>
 
           <View style={styles.inputGroup}>
             <Text style={styles.label}>Enter Transaction ID</Text>
-            <TextInput placeholder="e.g. T1234567890" style={styles.input} placeholderTextColor="#94a3b8" />
+            <TextInput
+              placeholder="e.g. T1234567890"
+              style={styles.input}
+              placeholderTextColor="#94a3b8"
+              value={transactionId}
+              onChangeText={setTransactionId}
+            />
           </View>
 
           <TouchableOpacity style={styles.uploadBox} onPress={pickImage}>
             {image ? (
-              <Image source={{ uri: image }} style={styles.previewImage} />
+              <Image source={{ uri: image }} style={styles.previewImage} resizeMode="contain" />
             ) : (
               <>
                 <Ionicons name="cloud-upload-outline" size={32} color="#3b82f6" />
@@ -96,15 +137,20 @@ export default function PayConsultationFee() {
             )}
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.detectBtn} onPress={() => Alert.alert("Success", "Payment submitted!")}>
+          <TouchableOpacity style={styles.detectBtn} onPress={handleSubmitPayment} disabled={submitting}>
             <LinearGradient colors={['#3b82f6', '#8b5cf6']} style={styles.gradient}>
-              <Text style={styles.btnText}>Submit Payment</Text>
+              {submitting ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.btnText}>Submit Payment</Text>
+              )}
             </LinearGradient>
           </TouchableOpacity>
+
+          {!!statusText && <Text style={styles.statusHint}>{statusText}</Text>}
         </View>
       </ScrollView>
 
-      {/* Footer */}
       <View style={styles.footer}>
         <TouchableOpacity style={styles.navItem} onPress={() => router.push('/dashboard')}>
           <Ionicons name="home" size={26} color="#3b82f6" />
@@ -137,7 +183,8 @@ const styles = StyleSheet.create({
   headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#3b82f6', marginLeft: 15 },
   card: { backgroundColor: '#fff', borderRadius: 25, padding: 22, elevation: 5 },
   title: { fontSize: 18, fontWeight: 'bold', textAlign: 'center', color: '#3b82f6' },
-  subTitle: { fontSize: 12, color: '#64748b', textAlign: 'center', marginBottom: 15 },
+  subTitle: { fontSize: 12, color: '#64748b', textAlign: 'center', marginBottom: 8 },
+  amountText: { textAlign: 'center', fontSize: 18, fontWeight: 'bold', color: '#1e293b', marginBottom: 15 },
   jazzCashBox: { backgroundColor: '#eff6ff', padding: 15, borderRadius: 15, alignItems: 'center', marginBottom: 15 },
   payToText: { fontSize: 10, color: '#3b82f6', fontWeight: 'bold', marginBottom: 5 },
   logoNumberRow: { flexDirection: 'row', alignItems: 'center', marginVertical: 5 },
@@ -160,6 +207,7 @@ const styles = StyleSheet.create({
   detectBtn: { height: 55, borderRadius: 27.5, marginTop: 15, overflow: 'hidden', elevation: 5 },
   gradient: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   btnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  statusHint: { textAlign: 'center', marginTop: 10, color: '#3b82f6', fontSize: 12 },
   footer: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', backgroundColor: '#fff', paddingVertical: 15, paddingBottom: 20, position: 'absolute', bottom: 0, width: '100%', borderTopLeftRadius: 35, borderTopRightRadius: 35, elevation: 10, borderTopWidth: 1, borderColor: '#e2e8f0' },
   navItem: { alignItems: 'center' },
   navText: { fontSize: 10, fontWeight: '700', color: '#3b82f6', marginTop: 4 },

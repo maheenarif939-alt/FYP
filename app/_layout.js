@@ -21,6 +21,8 @@ export default function RootLayout() {
       <Stack.Screen name="approved-cases" />
       <Stack.Screen name="doctor-verify" />
       <Stack.Screen name="doctor-account" />
+      <Stack.Screen name="forgot-password" />
+      <Stack.Screen name="reset-password" />
     </Stack>
   );
 }

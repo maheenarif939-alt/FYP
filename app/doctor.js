@@ -9,7 +9,7 @@ export default function DoctorProfile() {
   return (
     <LinearGradient colors={['#F8FBFF', '#E0EAFF']} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll}>
-        
+
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()}>
@@ -20,32 +20,29 @@ export default function DoctorProfile() {
 
         {/* Profile Card */}
         <View style={styles.profileCard}>
-          <Image 
-            source={{ uri: 'https://img.freepik.com/free-photo/friendly-doctor-smiling-camera_23-2148148633.jpg' }} 
-            style={styles.avatar} 
+          <Image
+            source={require('../assets/images/doctor.png')}
+            style={styles.avatar}
           />
-          <Text style={styles.docName}>Dr. Sarah Ahmed</Text>
+          <Text style={styles.docName}>Malik Muhammad Qasim</Text>
           <Text style={styles.docSpecialty}>Senior Dermatologist</Text>
-          <View style={styles.ratingRow}>
-            <Ionicons name="star" size={18} color="#3b82f6" />
-            <Text style={styles.ratingText}>4.9 (120 Reviews)</Text>
-          </View>
         </View>
 
         {/* Info Details */}
         <View style={styles.infoSection}>
           <Text style={styles.sectionTitle}>Contact Information</Text>
-          <InfoRow icon="mail" label="Email" value="dr.sarah@dermacare.com" />
-          <InfoRow icon="call" label="Phone" value="+92 300 1234567" />
-          <InfoRow icon="location" label="Clinic" value="Dermatology Center, Lahore" />
+          <InfoRow icon="mail" label="Email" value="Qasim_kem@yahoo.com" />
+          <InfoRow icon="call" label="Phone" value="0331 4714476" />
+          <InfoRow icon="calendar" label="Age" value="35 years" />
+          <InfoRow icon="location" label="Clinic" value="Sadique Medicare hospital, Gujranwala" />
         </View>
 
         {/* About Section */}
         <View style={styles.infoSection}>
           <Text style={styles.sectionTitle}>About</Text>
           <Text style={styles.aboutText}>
-            Dr. Sarah is a certified dermatologist with over 10 years of experience in skin analysis and treatment. 
-            She specializes in AI-assisted diagnosis and patient care.
+            Dr. Malik Muhammad Qasim is a certified dermatologist with extensive experience in skin
+            analysis and treatment.
           </Text>
         </View>
       </ScrollView>
@@ -56,7 +53,7 @@ export default function DoctorProfile() {
           <Ionicons name="home" size={26} color="#3b82f6" />
           <Text style={styles.navText}>Home</Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity style={styles.navItem} onPress={() => router.push('/payment')}>
           <Ionicons name="card" size={26} color="#3b82f6" />
           <Text style={styles.navText}>Payment</Text>
@@ -108,33 +105,33 @@ const styles = StyleSheet.create({
   label: { fontSize: 12, color: '#64748b' },
   value: { fontSize: 14, fontWeight: '600', color: '#1e293b' },
   aboutText: { color: '#475569', lineHeight: 22 },
-  
-  footer: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-around', 
-    alignItems: 'center', 
-    backgroundColor: '#fff', 
-    paddingVertical: 15, 
+
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    paddingVertical: 15,
     paddingBottom: 20,
-    position: 'absolute', 
-    bottom: 0, 
-    width: '100%', 
-    borderTopLeftRadius: 35, 
-    borderTopRightRadius: 35, 
-    borderTopWidth: 1, 
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    borderTopLeftRadius: 35,
+    borderTopRightRadius: 35,
+    borderTopWidth: 1,
     borderColor: '#e2e8f0',
     elevation: 10
   },
   navItem: { alignItems: 'center', justifyContent: 'center' },
   navText: { fontSize: 10, fontWeight: '700', color: '#3b82f6', marginTop: 4 },
-  centerBtn: { 
-    backgroundColor: '#8b5cf6', 
-    padding: 16, 
-    borderRadius: 35, 
-    marginTop: -50, 
+  centerBtn: {
+    backgroundColor: '#8b5cf6',
+    padding: 16,
+    borderRadius: 35,
+    marginTop: -50,
     elevation: 8,
     shadowColor: '#8b5cf6',
     shadowOpacity: 0.4,
-    shadowRadius: 10 
+    shadowRadius: 10
   }
 });

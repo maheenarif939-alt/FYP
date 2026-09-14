@@ -1,12 +1,50 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-// 1. Apni Master List import ki
-import { allCases } from '../data/cases';
+import { useCallback, useEffect, useState } from 'react';
+import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { getAllCases } from '../api/client';
 
 export default function AllCases() {
   const router = useRouter();
+  const [cases, setCases] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const loadCases = useCallback(async () => {
+    try {
+      const data = await getAllCases();
+      setCases(data);
+    } catch (error) {
+      console.log('All cases error:', error.message);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, []);
+
+  useEffect(() => { loadCases(); }, [loadCases]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    loadCases();
+  };
+
+  const statusColor = (status) => {
+    if (status === 'approved') return { bg: '#dcfce7', text: '#166534' };
+    if (status === 'rejected') return { bg: '#fee2e2', text: '#b91c1c' };
+    if (status === 'doctor_pending') return { bg: '#fef3c7', text: '#92400e' };
+    return { bg: '#e0e7ff', text: '#3730a3' };
+  };
+
+  // Pending cases open the review screen; approved cases open the final result (read-only)
+  const handleCasePress = (item) => {
+    if (item.status === 'doctor_pending') {
+      router.push({ pathname: '/doctor-verify', params: { id: item.id } });
+    } else if (item.status === 'approved') {
+      router.push({ pathname: '/result', params: { id: item.id } });
+    }
+  };
 
   return (
     <LinearGradient colors={['#F8FBFF', '#E0EAFF']} style={styles.container}>
@@ -18,28 +56,43 @@ export default function AllCases() {
         <Text style={styles.headerTitle}>Total Cases</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scroll}>
-        {/* 2. Yahan direct allCases use ho raha hai */}
-        {allCases.map((item) => (
-          <TouchableOpacity 
-            key={item.id} 
-            style={styles.card} 
-            // 3. Logic: Sirf pending cases par click ho, approved par nahi
-            onPress={() => item.status === 'pending' ? router.push(`/doctor-verify?id=${item.id}`) : null}
-          >
-            <View style={styles.iconContainer}>
-              <Ionicons name="person" size={24} color="#3b82f6" />
-            </View>
-            
-            <View style={styles.info}>
-              <Text style={styles.name}>{item.name}</Text>
-              <Text style={styles.issue}>{item.issue}</Text>
-            </View>
-            
-            <Text style={styles.date}>{item.date}</Text>
-            <Ionicons name="chevron-forward" size={20} color="#3b82f6" />
-          </TouchableOpacity>
-        ))}
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
+        {loading ? (
+          <ActivityIndicator size="large" color="#3b82f6" style={{ marginTop: 40 }} />
+        ) : cases.length === 0 ? (
+          <Text style={styles.emptyText}>No cases yet.</Text>
+        ) : (
+          cases.map((item) => {
+            const colors = statusColor(item.status);
+            const isTappable = item.status === 'doctor_pending' || item.status === 'approved';
+            return (
+              <TouchableOpacity
+                key={item.id}
+                style={styles.card}
+                onPress={() => handleCasePress(item)}
+                disabled={!isTappable}
+              >
+                <View style={styles.iconContainer}>
+                  <Ionicons name="person" size={24} color="#3b82f6" />
+                </View>
+
+                <View style={styles.info}>
+                  <Text style={styles.name}>{item.patient?.full_name || 'Patient'}</Text>
+                  <Text style={styles.issue}>{item.disease_detected || 'N/A'} · #{item.case_number}</Text>
+                </View>
+
+                <View style={[styles.statusBadge, { backgroundColor: colors.bg }]}>
+                  <Text style={[styles.statusText, { color: colors.text }]}>{item.status_label}</Text>
+                </View>
+
+                {isTappable && <Ionicons name="chevron-forward" size={20} color="#3b82f6" />}
+              </TouchableOpacity>
+            );
+          })
+        )}
       </ScrollView>
     </LinearGradient>
   );
@@ -47,34 +100,35 @@ export default function AllCases() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  header: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    marginTop: 60, 
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 60,
     paddingHorizontal: 20,
-    marginBottom: 10 
+    marginBottom: 10
   },
   backButton: { marginRight: 15 },
-  headerTitle: { 
-    fontSize: 24, 
-    fontWeight: 'bold', 
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
     color: '#3b82f6',
-    flex: 1 
+    flex: 1
   },
   scroll: { padding: 20 },
-  card: { 
-    flexDirection: 'row', 
-    backgroundColor: '#fff', 
-    padding: 15, 
-    borderRadius: 20, 
-    marginBottom: 12, 
-    alignItems: 'center', 
-    borderWidth: 1, 
-    borderColor: '#e2e8f0' 
+  emptyText: { textAlign: 'center', color: '#64748b', marginTop: 40 },
+  card: {
+    flexDirection: 'row',
+    backgroundColor: '#fff',
+    padding: 15,
+    borderRadius: 20,
+    marginBottom: 12,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#e2e8f0'
   },
-  iconContainer: { 
-    backgroundColor: '#eff6ff', 
-    padding: 12, 
+  iconContainer: {
+    backgroundColor: '#eff6ff',
+    padding: 12,
     borderRadius: 15,
     borderWidth: 1,
     borderColor: '#dbeafe'
@@ -82,5 +136,6 @@ const styles = StyleSheet.create({
   info: { marginLeft: 15, flex: 1 },
   name: { fontWeight: 'bold', fontSize: 16, color: '#1e293b' },
   issue: { color: '#64748b', fontSize: 12 },
-  date: { color: '#94a3b8', fontSize: 12, marginRight: 10 }
+  statusBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10, marginRight: 8 },
+  statusText: { fontSize: 10, fontWeight: 'bold' }
 });

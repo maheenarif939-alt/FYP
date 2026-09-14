@@ -1,15 +1,87 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRouter } from 'expo-router';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import * as Notifications from 'expo-notifications';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { getCaseDetail, getMyCases } from '../api/client';
+
+// tracker steps
+const STEP_ORDER = ['uploaded', 'payment_pending', 'processing', 'doctor_pending', 'approved'];
 
 export default function CaseTracking() {
   const router = useRouter();
+  const { caseId } = useLocalSearchParams();
+
+  const [caseData, setCaseData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const previousStatusRef = useRef(null);
+
+  const loadCase = useCallback(async () => {
+    try {
+      let data = null;
+
+      if (caseId) {
+        // Opened with upload/payment
+        data = await getCaseDetail(caseId);
+      } else {
+        // Opened from dashboard
+        const cases = await getMyCases();
+        if (Array.isArray(cases) && cases.length > 0) {
+          data = cases[0];
+        }
+      }
+
+      // notification bhej dein
+      if (
+        data &&
+        data.status === 'approved' &&
+        previousStatusRef.current !== 'approved' &&
+        previousStatusRef.current !== null
+      ) {
+        await Notifications.scheduleNotificationAsync({
+          content: {
+            title: 'Your Result is Ready!',
+            body: 'A dermatologist has reviewed your case. Tap to view your result.',
+          },
+          trigger: null,
+        });
+      }
+      previousStatusRef.current = data ? data.status : null;
+
+      setCaseData(data);
+    } catch (error) {
+      console.log('Case load error:', error.message);
+      setCaseData(null);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  }, [caseId]);
+
+  useEffect(() => { loadCase(); }, [loadCase]);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    loadCase();
+  };
+
+  const currentStepIndex = caseData
+    ? (caseData.status === 'rejected' ? STEP_ORDER.length - 1 : STEP_ORDER.indexOf(caseData.status))
+    : -1;
+
+  const isApproved = caseData?.status === 'approved';
+  const isRejected = caseData?.status === 'rejected';
+  const hasCase = !!caseData;
 
   return (
     <LinearGradient colors={['#F8FBFF', '#E0EAFF']} style={styles.container}>
-      <ScrollView contentContainerStyle={styles.scroll}>
-        
+      <ScrollView
+        contentContainerStyle={styles.scroll}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
+
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={() => router.back()}>
@@ -17,33 +89,61 @@ export default function CaseTracking() {
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Case Tracking</Text>
         </View>
-        <Text style={styles.subHeader}>Track the live verification progress of your case</Text>
+        <Text style={styles.subHeader}>Pull down to refresh status</Text>
 
-        {/* Case Info Box */}
-        <View style={styles.caseBox}>
-          <View style={styles.caseHeader}>
-            <Text style={styles.caseId}>Case ID: #DCA-9081</Text>
-            <View style={styles.badge}><Text style={styles.badgeText}>Processing</Text></View>
-          </View>
-          <Text style={styles.caseMeta}>Submitted: Just now</Text>
-          <Text style={styles.caseMeta}>Type: Facial Skin Analysis</Text>
-        </View>
+        {loading ? (
+          <ActivityIndicator size="large" color="#3b82f6" style={{ marginTop: 40 }} />
+        ) : (
+          <>
+            {/* Case Info Box */}
+            {hasCase ? (
+              <View style={styles.caseBox}>
+                <View style={styles.caseHeader}>
+                  <Text style={styles.caseId}>Case ID: #{caseData.case_number}</Text>
+                  <View style={[styles.badge, isRejected && { backgroundColor: '#fee2e2' }, isApproved && { backgroundColor: '#dcfce7' }]}>
+                    <Text style={[styles.badgeText, isApproved && { color: '#166534' }]}>{caseData.status_label}</Text>
+                  </View>
+                </View>
+                <Text style={styles.caseMeta}>Submitted: {new Date(caseData.created_at).toLocaleString()}</Text>
+                {!!caseData.disease_detected && (
+                  <Text style={styles.caseMeta}>AI Detected: {caseData.disease_detected} ({Math.round((caseData.confidence || 0) * 100)}%)</Text>
+                )}
+              </View>
+            ) : (
+              <View style={styles.caseBox}>
+                <Text style={styles.caseId}>No active case yet</Text>
+                <Text style={styles.caseMeta}>Upload a photo to begin your first case. Your progress will appear below as it moves through each stage.</Text>
+              </View>
+            )}
 
-        {/* Tracker Steps */}
-        <View style={styles.trackerContainer}>
-          <StepItem icon="checkmark-circle" color="#22c55e" title="Image Uploaded" desc="Facial image saved secure in database." active={true} showLine={true} />
-          <StepItem icon="checkmark-circle" color="#22c55e" title="Payment Verified" desc="Fee received successfully via JazzCash." active={true} showLine={true} />
-          <StepItem icon="flash" color="#3b82f6" title="AI Analysis Running" desc="Deep learning model scanning for patterns." active={true} showLine={true} />
-          <StepItem icon="hourglass" color="#94a3b8" title="Doctor Verification" desc="Final review by a certified dermatologist." active={true} showLine={true} />
-          <StepItem icon="document-text" color="#94a3b8" title="Completed" desc="Your report is ready to view." active={false} showLine={false} />
-        </View>
+            {/* Tracker Steps — always visible, active steps highlight as the case progresses */}
+            <View style={styles.trackerContainer}>
+              <StepItem icon="checkmark-circle" title="Image Uploaded" desc="Facial image saved securely to our database." active={currentStepIndex >= 0} showLine />
+              <StepItem icon="cash" title="Payment Submitted" desc="Consultation fee received, awaiting AI analysis." active={currentStepIndex >= 1} showLine />
+              <StepItem icon="flash" title="AI Analysis" desc="Our model is scanning the image for patterns." active={currentStepIndex >= 2} showLine />
+              <StepItem icon="hourglass" title="Doctor Verification" desc="Final review by a certified dermatologist." active={currentStepIndex >= 3} showLine />
+              <StepItem icon="document-text" title={isRejected ? 'Rejected' : 'Completed'} desc={isRejected ? 'The doctor did not approve this case.' : 'Your report will be ready to view here.'} active={currentStepIndex >= 4} showLine={false} />
+            </View>
 
-        {/* Updated Button with Gradient */}
-        <TouchableOpacity style={styles.detectBtn} onPress={() => router.push('/result')}>
-          <LinearGradient colors={['#3b82f6', '#8b5cf6']} style={styles.gradient}>
-            <Text style={styles.btnText}>Check Result</Text>
-          </LinearGradient>
-        </TouchableOpacity>
+            {hasCase ? (
+              <TouchableOpacity
+                style={[styles.detectBtn, !isApproved && { opacity: 0.5 }]}
+                onPress={() => router.push({ pathname: '/result', params: { id: caseData.id } })}
+                disabled={!isApproved}
+              >
+                <LinearGradient colors={['#3b82f6', '#8b5cf6']} style={styles.gradient}>
+                  <Text style={styles.btnText}>{isApproved ? 'Check Result' : 'Waiting for Doctor...'}</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity style={styles.detectBtn} onPress={() => router.push('/uploadimage')}>
+                <LinearGradient colors={['#3b82f6', '#8b5cf6']} style={styles.gradient}>
+                  <Text style={styles.btnText}>Start Your First Case</Text>
+                </LinearGradient>
+              </TouchableOpacity>
+            )}
+          </>
+        )}
       </ScrollView>
 
       {/* Footer */}
@@ -72,14 +172,14 @@ export default function CaseTracking() {
   );
 }
 
-const StepItem = ({ icon, color, title, desc, active, showLine }) => (
+const StepItem = ({ icon, title, desc, active, showLine }) => (
   <View style={styles.stepRow}>
     <View style={styles.iconContainer}>
-      <Ionicons name={icon} size={24} color={color} />
+      <Ionicons name={icon} size={24} color={active ? '#3b82f6' : '#94a3b8'} />
       {showLine && <View style={styles.verticalLine} />}
     </View>
     <View style={styles.stepContent}>
-      <Text style={[styles.stepTitle, {color: active ? '#3b82f6' : '#94a3b8'}]}>{title}</Text>
+      <Text style={[styles.stepTitle, { color: active ? '#3b82f6' : '#94a3b8' }]}>{title}</Text>
       <Text style={styles.stepDesc}>{desc}</Text>
     </View>
   </View>
@@ -96,7 +196,7 @@ const styles = StyleSheet.create({
   caseId: { fontSize: 16, fontWeight: 'bold', color: '#1e293b' },
   badge: { backgroundColor: '#fee2e2', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10 },
   badgeText: { color: '#e11d48', fontSize: 12, fontWeight: '600' },
-  caseMeta: { color: '#64748b', fontSize: 13 },
+  caseMeta: { color: '#64748b', fontSize: 13, marginTop: 4 },
   trackerContainer: { backgroundColor: '#fff', padding: 25, borderRadius: 20, marginBottom: 20 },
   stepRow: { flexDirection: 'row', marginBottom: 25 },
   iconContainer: { alignItems: 'center', marginRight: 15 },
@@ -104,11 +204,9 @@ const styles = StyleSheet.create({
   stepContent: { flex: 1 },
   stepTitle: { fontWeight: 'bold', fontSize: 15 },
   stepDesc: { fontSize: 12, color: '#64748b', marginTop: 2 },
-  // Updated Button Styles
   detectBtn: { height: 55, borderRadius: 27.5, marginTop: 10, overflow: 'hidden', elevation: 5 },
   gradient: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   btnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-  // Footer
   footer: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', backgroundColor: '#fff', paddingVertical: 15, paddingBottom: 20, position: 'absolute', bottom: 0, width: '100%', borderTopLeftRadius: 35, borderTopRightRadius: 35, elevation: 10, borderTopWidth: 1, borderColor: '#e2e8f0' },
   navItem: { alignItems: 'center', justifyContent: 'center' },
   navText: { fontSize: 10, fontWeight: '700', color: '#3b82f6', marginTop: 4 },

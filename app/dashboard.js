@@ -1,10 +1,38 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import * as Notifications from 'expo-notifications';
+import { useEffect, useState } from 'react';
+import { Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { getCurrentUser, getProfile } from '../api/client';
+
+Notifications.setNotificationHandler({
+  handleNotification: async () => ({
+    shouldShowAlert: true,
+    shouldPlaySound: true,
+    shouldSetBadge: false,
+  }),
+});
 
 export default function Dashboard() {
-  const router = useRouter(); 
+  const router = useRouter();
+  const [userName, setUserName] = useState(getCurrentUser()?.full_name || '');
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const profile = await getProfile();
+        setUserName(profile.full_name);
+      } catch (error) {
+        // Agar session expire ho gaya ho to login par bhej dein
+        console.log('Profile load error:', error.message);
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    Notifications.requestPermissionsAsync();
+  }, []);
 
   const blocks = [
     { title: 'Facial Skin Analysis', icon: 'scan', route: '/uploadimage' },
@@ -17,23 +45,25 @@ export default function Dashboard() {
   return (
     <LinearGradient colors={['#F8FBFF', '#E0EAFF']} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        
+
         {/* Header with Profile Icon */}
         <View style={styles.header}>
-          <TouchableOpacity 
-            style={styles.profileRow} 
+          <TouchableOpacity
+            style={styles.profileRow}
             onPress={() => router.push('/profile')}
           >
             <Ionicons name="person-circle" size={45} color="#3b82f6" />
-            <Text style={styles.welcomeText}>Hello, Eman 👋</Text>
+            <Text style={styles.welcomeText}>Hello {userName || 'there'}</Text>
           </TouchableOpacity>
-          <Ionicons name="notifications-outline" size={26} color="#3b82f6" />
+          <TouchableOpacity onPress={() => Alert.alert('Notifications', 'You will be notified when your scan result is ready.')}>
+            <Ionicons name="notifications-outline" size={26} color="#3b82f6" />
+          </TouchableOpacity>
         </View>
 
         {/* Main Banner Image */}
         <View style={styles.bannerContainer}>
-          <Image 
-            source={require('../assets/images/image.png')} 
+          <Image
+            source={require('../assets/images/image.png')}
             style={styles.bannerImage}
             resizeMode="cover"
           />
@@ -42,9 +72,9 @@ export default function Dashboard() {
         {/* Features Grid */}
         <View style={styles.grid}>
           {blocks.map((item, index) => (
-            <TouchableOpacity 
-              key={index} 
-              style={styles.block} 
+            <TouchableOpacity
+              key={index}
+              style={styles.block}
               onPress={() => router.push(item.route)}
             >
               <View style={styles.iconContainer}>
@@ -69,7 +99,7 @@ export default function Dashboard() {
           <Ionicons name="home" size={26} color="#3b82f6" />
           <Text style={styles.navText}>Home</Text>
         </TouchableOpacity>
-        
+
         <TouchableOpacity style={styles.navItem} onPress={() => router.push('/payment')}>
           <Ionicons name="card" size={26} color="#3b82f6" />
           <Text style={styles.navText}>Payment</Text>
@@ -108,32 +138,32 @@ const styles = StyleSheet.create({
   detectBtn: { height: 55, borderRadius: 27.5, marginTop: 10, overflow: 'hidden', elevation: 5 },
   gradient: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   btnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
-  footer: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-around', 
-    alignItems: 'center', 
-    backgroundColor: '#fff', 
-    paddingVertical: 15, 
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    paddingVertical: 15,
     paddingBottom: 20,
-    position: 'absolute', 
-    bottom: 0, 
-    width: '100%', 
-    borderTopLeftRadius: 35, 
-    borderTopRightRadius: 35, 
-    borderTopWidth: 1, 
+    position: 'absolute',
+    bottom: 0,
+    width: '100%',
+    borderTopLeftRadius: 35,
+    borderTopRightRadius: 35,
+    borderTopWidth: 1,
     borderColor: '#e2e8f0',
     elevation: 10
   },
   navItem: { alignItems: 'center', justifyContent: 'center' },
   navText: { fontSize: 10, fontWeight: '700', color: '#3b82f6', marginTop: 4 },
-  centerBtn: { 
-    backgroundColor: '#8b5cf6', 
-    padding: 16, 
-    borderRadius: 35, 
-    marginTop: -50, 
+  centerBtn: {
+    backgroundColor: '#8b5cf6',
+    padding: 16,
+    borderRadius: 35,
+    marginTop: -50,
     elevation: 8,
     shadowColor: '#8b5cf6',
     shadowOpacity: 0.4,
-    shadowRadius: 10 
+    shadowRadius: 10
   }
 });
