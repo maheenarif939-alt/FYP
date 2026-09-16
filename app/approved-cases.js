@@ -52,7 +52,7 @@ export default function ApprovedCases() {
             <TouchableOpacity
               key={item.id}
               style={styles.card}
-              // Approved cases open the final result view, not the verify screen
+              //  open the final result 
               onPress={() => router.push({ pathname: '/result', params: { id: item.id } })}
             >
               <View style={styles.iconContainer}>

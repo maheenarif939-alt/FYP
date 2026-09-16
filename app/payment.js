@@ -24,7 +24,7 @@ export default function PayConsultationFee() {
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       allowsEditing: false,
       quality: 0.5,
     });
@@ -52,12 +52,12 @@ export default function PayConsultationFee() {
         screenshotUri: image,
       });
 
-      setStatusText('Running AI analysis... (this may take a moment)');
+      setStatusText('Running AI analysis...');
       await analyzeCase(caseId);
 
       Alert.alert(
         'Success',
-        `Payment submitted! Your unique reference ID is:\n\n${paymentResult.unique_id}\n\nPlease save this for your records.`
+        'Your payment has been submitted successfully!'
       );
       router.push({ pathname: '/casetracking', params: { caseId } });
     } catch (error) {

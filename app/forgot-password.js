@@ -44,11 +44,11 @@ export default function ForgotPassword() {
           <View style={styles.header}>
             <Text style={styles.headerTitle}>Forgot Password?</Text>
             <Text style={styles.subText}>
-              Enter the email linked to your account and we'll send you a 6-digit code to reset your password.
+              Enter the email of your account and we'll send you a 6-digit code to reset your password.
             </Text>
           </View>
 
-          {/* Toggle Buttons */}
+          {/* Toggle */}
           <View style={styles.toggleContainer}>
             <TouchableOpacity style={[styles.toggleBtn, !isDoctor && styles.activeBtn]} onPress={() => setIsDoctor(false)}>
               <Text style={!isDoctor ? styles.activeText : styles.inactiveText}>Patient</Text>

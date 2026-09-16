@@ -24,7 +24,7 @@ export default function Dashboard() {
         const profile = await getProfile();
         setUserName(profile.full_name);
       } catch (error) {
-        // Agar session expire ho gaya ho to login par bhej dein
+        //  login notification if session expire
         console.log('Profile load error:', error.message);
       }
     })();
@@ -60,7 +60,7 @@ export default function Dashboard() {
           </TouchableOpacity>
         </View>
 
-        {/* Main Banner Image */}
+        {/*  Banner Image */}
         <View style={styles.bannerContainer}>
           <Image
             source={require('../assets/images/image.png')}
@@ -85,7 +85,7 @@ export default function Dashboard() {
           ))}
         </View>
 
-        {/* Start Detection Button */}
+        {/*  Detection Button */}
         <TouchableOpacity style={styles.detectBtn} onPress={() => router.push('/uploadimage')}>
           <LinearGradient colors={['#3b82f6', '#8b5cf6']} style={styles.gradient}>
             <Text style={styles.btnText}>START DETECTION</Text>

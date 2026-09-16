@@ -33,7 +33,7 @@ export default function Onboarding() {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.slide}>
-            {/* Image Box filling the area */}
+            {/* Image Box  */}
             <View style={styles.imageBox}>
               <Image source={item.img} style={styles.image} />
             </View>
@@ -43,7 +43,7 @@ export default function Onboarding() {
         )}
       />
 
-      {/* Pagination Dots */}
+      {/* Dots */}
       <View style={styles.pagination}>
         {slides.map((_, i) => (
           <View key={i} style={[styles.dot, { backgroundColor: i === currentIndex ? '#3b82f6' : '#cbd5e1' }]} />

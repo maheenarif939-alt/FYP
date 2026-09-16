@@ -81,7 +81,7 @@ export default function ResultDetail() {
                 <Text key={i} style={styles.medText}>• {line}</Text>
               ))
             ) : (
-              <Text style={styles.medText}>Doctor abhi tak medicine confirm nahi kar chuka.</Text>
+              <Text style={styles.medText}>The doctor has not yet confirmed the medicine.</Text>
             )}
 
             <View style={styles.divider} />

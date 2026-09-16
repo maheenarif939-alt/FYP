@@ -37,7 +37,7 @@ export default function DoctorProfile() {
           <InfoRow icon="location" label="Clinic" value="Sadique Medicare hospital, Gujranwala" />
         </View>
 
-        {/* About Section */}
+        {/* About */}
         <View style={styles.infoSection}>
           <Text style={styles.sectionTitle}>About</Text>
           <Text style={styles.aboutText}>
@@ -47,7 +47,7 @@ export default function DoctorProfile() {
         </View>
       </ScrollView>
 
-      {/* Footer (Same as Dashboard) */}
+      {/* Footer */}
       <View style={styles.footer}>
         <TouchableOpacity style={styles.navItem} onPress={() => router.push('/dashboard')}>
           <Ionicons name="home" size={26} color="#3b82f6" />

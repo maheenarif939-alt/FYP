@@ -14,11 +14,6 @@ import {
   View,
 } from 'react-native'
 
-// -----------------------------------------------------------------------
-// IMPORTANT: adjust this import path based on where this file lives.
-//   - If this file is at:      app/uploadimage.js        -> use './api/client'
-//   - If this file is nested, e.g. app/screens/uploadimage.js -> use '../api/client'
-// -----------------------------------------------------------------------
 import { uploadCaseImage } from '../api/client';
 
 export default function UploadImage() {
@@ -27,14 +22,8 @@ export default function UploadImage() {
   const [selectedImage, setSelectedImage] = useState(null);
   const [uploading, setUploading] = useState(false);
 
-  // -----------------------------------------------------------------------
-  // Opens the PHONE'S OWN native camera app.
-  // The native camera already provides: flash, front/back flip, shutter
-  // button, and its own "Retake / Use Photo" confirmation screen — so we
-  // don't need to build any of that ourselves. Once the user taps
-  // "Use Photo" on the native screen, the picked image comes straight
-  // back into our app via `result.assets[0].uri`.
-  // -----------------------------------------------------------------------
+  // Opens the camera app.
+
   const takePhotoWithCamera = async () => {
     const permissionResult = await ImagePicker.requestCameraPermissionsAsync();
     if (!permissionResult.granted) {
@@ -47,15 +36,15 @@ export default function UploadImage() {
 
     Alert.alert(
       'Photo Tip',
-      'Please make sure the affected skin area (face or body part showing the condition) is clearly visible, well-lit, and in focus before capturing.',
+      'Please make sure the affected skin area (face) is clearly visible and in focus before capturing.',
       [
         {
           text: 'Open Camera',
           onPress: async () => {
             const result = await ImagePicker.launchCameraAsync({
-              quality: 0.5, // lower quality = smaller file = faster & more reliable upload
+              quality: 0.5, // lower quality 
               allowsEditing: true, // shows native crop/confirm screen with Retake option
-              cameraType: ImagePicker.CameraType.front, // defaults to front (face) camera
+              cameraType: ImagePicker.CameraType.front, //  front camera
             });
             if (!result.canceled) {
               setSelectedImage(result.assets[0].uri);
@@ -65,11 +54,8 @@ export default function UploadImage() {
         { text: 'Cancel', style: 'cancel' },
       ]
     );
-  };
-
-  // -----------------------------------------------------------------------
+  }
   // Gallery option
-  // -----------------------------------------------------------------------
   const pickFromGallery = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResult.granted) {
@@ -78,7 +64,7 @@ export default function UploadImage() {
     }
 
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ['images'],
       quality: 0.5,
       allowsEditing: true,
     });
@@ -90,9 +76,7 @@ export default function UploadImage() {
 
   const removeSelectedImage = () => setSelectedImage(null);
 
-  // -----------------------------------------------------------------------
   // Final upload to backend
-  // -----------------------------------------------------------------------
   const handleConfirm = async () => {
     if (!selectedImage) return;
 
@@ -130,7 +114,7 @@ export default function UploadImage() {
 
         {selectedImage && (
           <TouchableOpacity style={styles.retakeLink} onPress={removeSelectedImage}>
-            <Text style={styles.retakeLinkText}>Remove photo & choose again</Text>
+            <Text style={styles.retakeLinkText}>Remove photo & Choose again</Text>
           </TouchableOpacity>
         )}
 
@@ -153,7 +137,7 @@ export default function UploadImage() {
             {uploading ? (
               <ActivityIndicator color="#fff" />
             ) : (
-              <Text style={styles.btnText}>CONFIRM & PROCEED</Text>
+              <Text style={styles.btnText}>CONFIRM </Text>
             )}
           </LinearGradient>
         </TouchableOpacity>

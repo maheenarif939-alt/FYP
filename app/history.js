@@ -31,9 +31,7 @@ export default function History() {
     loadCases();
   };
 
-  // ---------------- Status logic ----------------
-  // "Completed" sirf tab jab doctor ne approve kar diya ho AND diagnosis ban chuki ho.
-  // Baaki har halat mein sirf ek simple "in progress" state dikhani hai — kuch aur nahi.
+  //  Status logic 
   const getCaseState = (item) => {
     if (item.status === 'approved' && item.disease_detected) {
       return {
@@ -68,7 +66,7 @@ export default function History() {
         subtitle: 'Tap to pay consultation fee',
       };
     }
-    // payment_pending / processing / doctor_pending — sab ek hi "in progress" state
+    // in progress
     return {
       key: 'progress',
       label: 'In Progress',
@@ -94,7 +92,7 @@ export default function History() {
   const handleDelete = (item) => {
     Alert.alert(
       'Delete Scan',
-      'Are you sure you want to delete this scan? This action cannot be undone.',
+      'Are you sure you want to delete this scan?',
       [
         { text: 'Cancel', style: 'cancel' },
         {

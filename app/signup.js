@@ -60,7 +60,7 @@ export default function Signup() {
         password2: confirmPassword,
       });
 
-      // Signup kaamyab — turant login bhi kar dein
+      // Signup 
       setSession(data.tokens, data.user);
       router.replace('/dashboard');
     } catch (error) {

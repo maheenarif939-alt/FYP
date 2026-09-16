@@ -71,7 +71,7 @@ export default function DoctorAccount() {
         <ActivityIndicator size="large" color="#3b82f6" style={{ marginTop: 40 }} />
       ) : (
         <ScrollView contentContainerStyle={styles.scroll}>
-          {/* ---------------- Profile Card ---------------- */}
+          {/*  Profile Card  */}
           <View style={styles.profileCard}>
             <TouchableOpacity
               style={styles.editIconButton}

@@ -33,7 +33,7 @@ export default function CaseTracking() {
         }
       }
 
-      // notification bhej dein
+      // notification 
       if (
         data &&
         data.status === 'approved' &&
@@ -43,7 +43,7 @@ export default function CaseTracking() {
         await Notifications.scheduleNotificationAsync({
           content: {
             title: 'Your Result is Ready!',
-            body: 'A dermatologist has reviewed your case. Tap to view your result.',
+            body: 'Dermatologist has reviewed your case. Tap to view your result.',
           },
           trigger: null,
         });
@@ -89,7 +89,7 @@ export default function CaseTracking() {
           </TouchableOpacity>
           <Text style={styles.headerTitle}>Case Tracking</Text>
         </View>
-        <Text style={styles.subHeader}>Pull down to refresh status</Text>
+        <Text style={styles.subHeader}>Pull Down to Refresh Status</Text>
 
         {loading ? (
           <ActivityIndicator size="large" color="#3b82f6" style={{ marginTop: 40 }} />
@@ -116,7 +116,7 @@ export default function CaseTracking() {
               </View>
             )}
 
-            {/* Tracker Steps — always visible, active steps highlight as the case progresses */}
+            {/* Tracker Steps  */}
             <View style={styles.trackerContainer}>
               <StepItem icon="checkmark-circle" title="Image Uploaded" desc="Facial image saved securely to our database." active={currentStepIndex >= 0} showLine />
               <StepItem icon="cash" title="Payment Submitted" desc="Consultation fee received, awaiting AI analysis." active={currentStepIndex >= 1} showLine />

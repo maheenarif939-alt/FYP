@@ -31,9 +31,7 @@ export default function Login() {
         role: requestedRole,
       });
 
-      // Safety check: agar kisi wajah se account ka role
-      // requested role se match nahi karta, to session save hi na karo
-      // aur ghalat dashboard kabhi na khulne do.
+      // Safety check
       if (data.user.role !== requestedRole) {
         await clearSession();
         Alert.alert(
@@ -45,7 +43,7 @@ export default function Login() {
         return;
       }
 
-      // Login kaamyab — session (tokens + user) save karein
+      // Login successfull
       await setSession(data.tokens, data.user);
 
       if (data.user.role === 'doctor') {
@@ -67,7 +65,7 @@ export default function Login() {
         {/* Logo */}
         <Image source={require('../assets/images/logo.png')} style={styles.logo} />
 
-        {/* Toggle Buttons */}
+        {/* Toggle */}
         <View style={styles.toggleContainer}>
           <TouchableOpacity style={[styles.toggleBtn, !isDoctor && styles.activeBtn]} onPress={() => setIsDoctor(false)}>
             <Text style={!isDoctor ? styles.activeText : styles.inactiveText}>Patient</Text>
