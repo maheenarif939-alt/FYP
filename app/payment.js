@@ -15,7 +15,7 @@ export default function PayConsultationFee() {
   const [transactionId, setTransactionId] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [statusText, setStatusText] = useState('');
-  const phoneNumber = "0300-1234567";
+  const phoneNumber = "0301 0708012";
 
   const copyToClipboard = async () => {
     await Clipboard.setStringAsync(phoneNumber);
