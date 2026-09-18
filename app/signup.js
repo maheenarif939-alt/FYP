@@ -3,7 +3,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import { setSession, signupPatient } from '../api/client';
+import { signupPatient } from '../api/client';
 
 const SPECIAL_CHARS = '!@#$%^&*()_+-=[]{}|;:,.<>?/~`"\'\\';
 
@@ -42,7 +42,7 @@ export default function Signup() {
       return;
     }
     if (password !== confirmPassword) {
-      Alert.alert('Password Mismatch', 'Please Enter the same.');
+      Alert.alert('Password Mismatch', 'Please enter the same password in both fields.');
       return;
     }
     if (!allChecksPassed) {
@@ -52,7 +52,7 @@ export default function Signup() {
 
     setLoading(true);
     try {
-      const data = await signupPatient({
+      await signupPatient({
         full_name: fullName.trim(),
         email: email.trim(),
         age,
@@ -60,9 +60,8 @@ export default function Signup() {
         password2: confirmPassword,
       });
 
-      // Signup 
-      setSession(data.tokens, data.user);
-      router.replace('/dashboard');
+      Alert.alert('Check Your Email', 'A verification code has been sent to your email.');
+      router.push({ pathname: '/verify-email', params: { email: email.trim(), role: 'patient' } });
     } catch (error) {
       Alert.alert('Signup Failed', error.message);
     } finally {
@@ -119,12 +118,11 @@ export default function Signup() {
             value={password}
             onChangeText={setPassword}
           />
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={{padding: 5}}>
+          <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={{ padding: 5 }}>
             <Ionicons name={showPassword ? "eye-off" : "eye"} size={22} color="#3b82f6" />
           </TouchableOpacity>
         </View>
 
-        {/* Live password rules checklist */}
         <View style={styles.rulesBox}>
           <RuleRow passed={checks.length} text="At least 8 characters" />
           <RuleRow passed={checks.uppercase} text="One uppercase letter (A-Z)" />
@@ -142,7 +140,7 @@ export default function Signup() {
             value={confirmPassword}
             onChangeText={setConfirmPassword}
           />
-          <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={{padding: 5}}>
+          <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={{ padding: 5 }}>
             <Ionicons name={showConfirmPassword ? "eye-off" : "eye"} size={22} color="#3b82f6" />
           </TouchableOpacity>
         </View>
@@ -158,7 +156,7 @@ export default function Signup() {
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.footerText}>Already have an account? <Text style={{fontWeight: 'bold', color: '#3b82f6'}}>Login</Text></Text>
+          <Text style={styles.footerText}>Already have an account? <Text style={{ fontWeight: 'bold', color: '#3b82f6' }}>Login</Text></Text>
         </TouchableOpacity>
 
       </ScrollView>

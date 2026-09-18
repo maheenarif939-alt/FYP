@@ -37,7 +37,7 @@ export default function AllCases() {
     return { bg: '#e0e7ff', text: '#3730a3' };
   };
 
-  // Pending cases open the review screen; approved cases open the final result (read-only)
+  // Pending cases open the review screen and  approved cases open the result
   const handleCasePress = (item) => {
     if (item.status === 'doctor_pending') {
       router.push({ pathname: '/doctor-verify', params: { id: item.id } });

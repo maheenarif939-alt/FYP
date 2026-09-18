@@ -175,7 +175,15 @@ export function resetPassword({ email, role, code, new_password, new_password2 }
   });
 }
 
-//  Cases 
+export function verifyEmail({ email, role, code }) {
+  return request('/accounts/verify-email/', { method: 'POST', body: { email, role, code } });
+}
+
+export function resendVerification({ email, role }) {
+  return request('/accounts/resend-verification/', { method: 'POST', body: { email, role } });
+}
+
+  // Cases 
 export function uploadCaseImage(imageUri) {
   return uploadFile('/cases/upload/', imageUri, 'image');
 }
