@@ -119,7 +119,7 @@ export default function DoctorVerify() {
             </View>
             <TextInput
               style={styles.noteInput}
-              placeholder="Write a short note for the patient..."
+              placeholder="Note for the patient..."
               multiline
               value={note}
               onChangeText={setNote}
@@ -134,7 +134,7 @@ export default function DoctorVerify() {
             {submitting ? <ActivityIndicator color="#fff" /> : (
               <>
                 <Ionicons name="checkmark-circle" size={20} color="#fff" />
-                <Text style={styles.buttonText}>Approve & Send to Patient</Text>
+                <Text style={styles.buttonText}>Approved</Text>
               </>
             )}
           </TouchableOpacity>
@@ -145,7 +145,7 @@ export default function DoctorVerify() {
             disabled={submitting}
           >
             <Ionicons name="camera-reverse-outline" size={20} color="#ef4444" />
-            <Text style={styles.rejectButtonText}>Reject — Ask Retake</Text>
+            <Text style={styles.rejectButtonText}>Retake</Text>
           </TouchableOpacity>
         </ScrollView>
       )}

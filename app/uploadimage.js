@@ -114,7 +114,7 @@ export default function UploadImage() {
 
         {selectedImage && (
           <TouchableOpacity style={styles.retakeLink} onPress={removeSelectedImage}>
-            <Text style={styles.retakeLinkText}>Remove photo & Choose again</Text>
+            <Text style={styles.retakeLinkText}>Choose again</Text>
           </TouchableOpacity>
         )}
 
