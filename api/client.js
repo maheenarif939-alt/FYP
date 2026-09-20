@@ -1,7 +1,7 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as FileSystem from 'expo-file-system/legacy';
 
-export const API_BASE_URL = 'http://192.168.100.109:8000/api';
+export const API_BASE_URL = 'https://dermacareme.sandbox.pk/api';
 
 const SESSION_KEY = 'session';
 

@@ -124,7 +124,7 @@ export default function App() {
       }
     } catch (err) {
       setLoggingIn(false);
-      setLoginError('Server se connect nahi ho saka. Backend chal raha hai?');
+      setLoginError('Failed to connect to the server.');
     }
   };
 
@@ -137,7 +137,7 @@ export default function App() {
       });
       fetchPayments();
       fetchStats();
-    } catch (err) { alert('Payment approve nahi ho saka.'); }
+    } catch (err) { alert('The payment could not be processed.'); }
   };
 
   const handleImageAction = async (caseId, action) => {
@@ -149,7 +149,7 @@ export default function App() {
       });
       fetchModeration();
       fetchStats();
-    } catch (err) { alert('Action perform nahi ho saka.'); }
+    } catch (err) { alert('The action could not be performed.'); }
   };
 
   const handleToggleDoctor = async (docEmail) => {
@@ -160,7 +160,7 @@ export default function App() {
         body: JSON.stringify({ email: docEmail }),
       });
       fetchDoctors();
-    } catch (err) { alert('Status change nahi ho saka.'); }
+    } catch (err) { alert('The status could not be changed.'); }
   };
 
   const handleDeleteDoctor = async (docEmail) => {
@@ -194,10 +194,10 @@ export default function App() {
         fetchDoctors();
         fetchStats();
       } else {
-        setAddDoctorError(data.error || 'Doctor add nahi ho saka.');
+        setAddDoctorError(data.error || 'The doctor could not be added.');
       }
     } catch (err) {
-      setAddDoctorError('Server se connect nahi ho saka.');
+      setAddDoctorError('Failed to connect to the server.');
     }
   };
 
