@@ -24,7 +24,7 @@ export default function Dashboard() {
         const profile = await getProfile();
         setUserName(profile.full_name);
       } catch (error) {
-        //  login notification if session expire
+        //  if session expire
         console.log('Profile load error:', error.message);
       }
     })();
@@ -46,7 +46,7 @@ export default function Dashboard() {
     <LinearGradient colors={['#F8FBFF', '#E0EAFF']} style={styles.container}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
 
-        {/* Header with Profile Icon */}
+        {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity
             style={styles.profileRow}
@@ -60,7 +60,7 @@ export default function Dashboard() {
           </TouchableOpacity>
         </View>
 
-        {/*  Banner Image */}
+        {/* Image */}
         <View style={styles.bannerContainer}>
           <Image
             source={require('../assets/images/image.png')}
