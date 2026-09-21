@@ -158,7 +158,6 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginTop: 60, paddingHorizontal: 20, marginBottom: 20 },
   headerTitle: { fontSize: 22, fontWeight: 'bold', color: '#3b82f6' },
   scroll: { paddingHorizontal: 20, paddingBottom: 40 },
-
   profileCard: { backgroundColor: '#fff', padding: 25, borderRadius: 25, alignItems: 'center', elevation: 5, borderWidth: 1, borderColor: '#e2e8f0', marginBottom: 18 },
   editIconButton: { position: 'absolute', top: 15, right: 15, padding: 6, backgroundColor: '#eff6ff', borderRadius: 10 },
   avatar: { width: 110, height: 110, borderRadius: 55, marginBottom: 15, borderWidth: 3, borderColor: '#3b82f6' },
@@ -168,22 +167,11 @@ const styles = StyleSheet.create({
   infoRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 12, borderBottomWidth: 1, borderBottomColor: '#f1f5f9', paddingBottom: 8 },
   label: { fontSize: 13, color: '#64748b', marginLeft: 8, width: 80 },
   value: { fontSize: 14, fontWeight: '600', color: '#1e293b', flex: 1, textAlign: 'right' },
-
   editForm: { width: '100%', marginTop: 5 },
   fieldLabel: { fontSize: 12, color: '#64748b', marginBottom: 5, marginTop: 10 },
   input: { backgroundColor: '#f8fafc', padding: 12, borderRadius: 12, borderWidth: 1, borderColor: '#e2e8f0', color: '#1e293b', fontSize: 14 },
   saveButton: { backgroundColor: '#3b82f6', padding: 14, borderRadius: 16, alignItems: 'center', marginTop: 18 },
   saveButtonText: { color: '#fff', fontWeight: 'bold', fontSize: 15 },
-
-  logoutButton: {
-    flexDirection: 'row',
-    backgroundColor: '#ef4444',
-    marginTop: 5,
-    padding: 16,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    elevation: 3
-  },
+  logoutButton: { flexDirection: 'row', backgroundColor: '#ef4444', marginTop: 5, padding: 16, borderRadius: 20, justifyContent: 'center', alignItems: 'center', elevation: 3 },
   logoutText: { color: '#fff', fontSize: 16, fontWeight: 'bold', marginLeft: 10 }
 });
