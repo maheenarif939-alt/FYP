@@ -24,24 +24,24 @@ export default function DoctorProfile() {
             source={require('../assets/images/doctor.png')}
             style={styles.avatar}
           />
-          <Text style={styles.docName}>Malik Muhammad Qasim</Text>
+          <Text style={styles.docName}>Dr. Asma Waseem</Text>
           <Text style={styles.docSpecialty}>Senior Dermatologist</Text>
         </View>
 
         {/* Info Details */}
         <View style={styles.infoSection}>
           <Text style={styles.sectionTitle}>Contact Information</Text>
-          <InfoRow icon="mail" label="Email" value="Qasim_kem@yahoo.com" />
-          <InfoRow icon="call" label="Phone" value="0331 4714476" />
-          <InfoRow icon="calendar" label="Age" value="35 years" />
-          <InfoRow icon="location" label="Clinic" value="Sadique Medicare hospital, Gujranwala" />
+          <InfoRow icon="mail" label="Email" value="asmawaseem286@gmail.com" />
+          <InfoRow icon="call" label="Phone" value="0333 4413511" />
+          <InfoRow icon="calendar" label="Age" value="30 years" />
+          <InfoRow icon="location" label="Clinic" value="Abbas Clinic kamoke , Gujranwala" />
         </View>
 
         {/* About */}
         <View style={styles.infoSection}>
           <Text style={styles.sectionTitle}>About</Text>
           <Text style={styles.aboutText}>
-            Dr. Malik Muhammad Qasim is a certified dermatologist with extensive experience in skin
+            Dr. Asma Waseem is a certified dermatologist with extensive experience in skin
             analysis and treatment.
           </Text>
         </View>
