@@ -6,7 +6,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, RefreshControl, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { getCaseDetail, getMyCases } from '../api/client';
 
-// tracker steps
+// steps
 const STEP_ORDER = ['uploaded', 'payment_pending', 'processing', 'doctor_pending', 'approved'];
 
 export default function CaseTracking() {
@@ -116,7 +116,7 @@ export default function CaseTracking() {
               </View>
             )}
 
-            {/* Tracker Steps  */}
+            {/* Steps  */}
             <View style={styles.trackerContainer}>
               <StepItem icon="checkmark-circle" title="Image Uploaded" desc="Facial image saved securely to our database." active={currentStepIndex >= 0} showLine />
               <StepItem icon="cash" title="Payment Submitted" desc="Consultation fee received, awaiting AI analysis." active={currentStepIndex >= 1} showLine />

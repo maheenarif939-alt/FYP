@@ -29,7 +29,6 @@ export default function ApprovedCases() {
     setRefreshing(true);
     loadCases();
   };
-
   return (
     <LinearGradient colors={['#F8FBFF', '#E0EAFF']} style={styles.container}>
       <View style={styles.header}>
