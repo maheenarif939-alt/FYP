@@ -70,7 +70,7 @@ export default function VerifyEmail() {
             value={code}
             onChangeText={setCode}
           />
-
+           
           <TouchableOpacity style={styles.btn} onPress={handleVerify} disabled={loading}>
             <LinearGradient colors={['#3b82f6', '#8b5cf6']} style={styles.gradient}>
               {loading ? <ActivityIndicator color="#fff" /> : <Text style={styles.btnText}>Verify Email</Text>}
