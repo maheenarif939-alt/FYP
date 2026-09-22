@@ -47,7 +47,7 @@ export default function Profile() {
       'DermaCare helps you get a quick AI-assisted skin analysis, followed by a review from a certified dermatologist.\n\nVersion 1.0.0'
     );
   };
-
+// profile 
   return (
     <LinearGradient colors={['#F8FBFF', '#E0EAFF']} style={styles.container}>
       <View style={styles.header}>
@@ -116,13 +116,24 @@ const styles = StyleSheet.create({
   avatarContainer: { marginBottom: 10 },
   userName: { fontSize: 20, fontWeight: 'bold', color: '#1e293b' },
   userEmail: { fontSize: 14, color: '#64748b', marginBottom: 20 },
-  statsContainer: { flexDirection: 'row', width: '100%', justifyContent: 'space-around', borderTopWidth: 1, borderColor: '#f1f5f9', paddingTop: 20 },
+  statsContainer: { flexDirection: 'row', 
+    width: '100%', 
+    justifyContent: 'space-around', 
+    borderTopWidth: 1, 
+    borderColor: 'rgb(241, 245, 249)', 
+    paddingTop: 20 },
   statBox: { alignItems: 'center' },
   statNumber: { fontSize: 18, fontWeight: 'bold', color: '#3b82f6' },
   statLabel: { fontSize: 12, color: '#64748b' },
   statDivider: { width: 1, backgroundColor: '#e2e8f0' },
   optionsContainer: { paddingHorizontal: 20 },
-  optionBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', padding: 18, borderRadius: 15, marginBottom: 12, elevation: 2 },
+  optionBtn: { flexDirection: 'row', 
+    alignItems: 'center', 
+    backgroundColor: '#fff', 
+    padding: 18, 
+    borderRadius: 15, 
+    marginBottom: 12, 
+    elevation: 2 },
   optionText: { marginLeft: 15, fontSize: 16, fontWeight: '600', color: '#1e293b', flex: 1 },
   chevron: { marginLeft: 'auto' },
   logoutBtn: { backgroundColor: '#fff', marginTop: 10 }
