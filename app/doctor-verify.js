@@ -70,11 +70,12 @@ export default function DoctorVerify() {
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 110 : 20}
         >
           <ScrollView
             contentContainerStyle={styles.scroll}
             keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
           >
             <Image
               source={{ uri: caseData.result_image || caseData.image }}
@@ -118,6 +119,8 @@ export default function DoctorVerify() {
                 placeholderTextColor="#000000"
                 value={medicine}
                 onChangeText={setMedicine}
+                autoCorrect={false}
+                spellCheck={false}
               />
             </View>
 
@@ -133,6 +136,8 @@ export default function DoctorVerify() {
                 multiline
                 value={note}
                 onChangeText={setNote}
+                autoCorrect={false}
+                spellCheck={false}
               />
             </View>
 
@@ -157,6 +162,8 @@ export default function DoctorVerify() {
               <Ionicons name="camera-reverse-outline" size={20} color="#ef4444" />
               <Text style={styles.rejectButtonText}>Retake</Text>
             </TouchableOpacity>
+
+            <View style={{ height: 60 }} />
           </ScrollView>
         </KeyboardAvoidingView>
       )}
@@ -169,7 +176,7 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', marginTop: 60, paddingHorizontal: 20, marginBottom: 10 },
   backButton: { marginRight: 15 },
   headerTitle: { fontSize: 24, fontWeight: 'bold', color: '#3b82f6', flex: 1 },
-  scroll: { padding: 20, paddingBottom: 40 },
+  scroll: { padding: 20, paddingBottom: 60 },
   emptyText: { textAlign: 'center', color: '#64748b', marginTop: 40 },
   faceImage: { width: '100%', height: 250, borderRadius: 20, marginBottom: 15 },
   card: { backgroundColor: '#fff', padding: 18, borderRadius: 20, borderWidth: 1, borderColor: '#e2e8f0', marginBottom: 15 },
