@@ -93,7 +93,7 @@ const styles = StyleSheet.create({
   header: { flexDirection: 'row', alignItems: 'center', marginTop: 40, marginBottom: 20 },
   headerTitle: { fontSize: 22, fontWeight: 'bold', marginLeft: 15, color: '#3b82f6' },
   profileCard: { backgroundColor: '#fff', padding: 30, borderRadius: 25, alignItems: 'center', elevation: 4, marginBottom: 20 },
-  avatar: { width: 120, height: 120, borderRadius: 60, marginBottom: 15, borderWidth: 3, borderColor: '#e0e7ff' },
+  avatar: { width: 120, height: 120, borderRadius: 60, marginBottom: 15, borderWidth: 3, borderColor: '#3b82f6' },
   docName: { fontSize: 20, fontWeight: 'bold', color: '#1e293b' },
   docSpecialty: { color: '#3b82f6', marginBottom: 5, fontWeight: '600' },
   ratingRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#e0e7ff', paddingHorizontal: 12, paddingVertical: 5, borderRadius: 10 },
@@ -105,13 +105,7 @@ const styles = StyleSheet.create({
   label: { fontSize: 12, color: '#64748b' },
   value: { fontSize: 14, fontWeight: '600', color: '#1e293b' },
   aboutText: { color: '#475569', lineHeight: 22 },
-
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingVertical: 15,
+  footer: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', backgroundColor: '#fff', paddingVertical: 15,
     paddingBottom: 20,
     position: 'absolute',
     bottom: 0,
