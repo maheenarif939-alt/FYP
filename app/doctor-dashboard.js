@@ -64,7 +64,7 @@ export default function DoctorDashboard() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         showsVerticalScrollIndicator={false}
       >
-        {/* Header: left = logo (opens doctor account) + name, right = bell */}
+        {/* Header*/}
         <View style={styles.headerRow}>
           <TouchableOpacity style={styles.profileSection} onPress={() => router.push('/doctor-account')}>
             <Image
@@ -138,43 +138,19 @@ export default function DoctorDashboard() {
 const styles = StyleSheet.create({
   container: { flex: 1 },
   scroll: { padding: 20, paddingTop: 55, paddingBottom: 50 },
-  headerRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 30,
-  },
+  headerRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 30, },
   profileSection: { flexDirection: 'row', alignItems: 'center', flex: 1, marginRight: 10 },
   logoSmall: { width: 60, height: 45 },
   doctorNameHeader: { fontSize: 24, fontWeight: 'bold', color: '#3b82f6', marginLeft: 12, flexShrink: 1 },
   bellButton: { position: 'relative', padding: 4 },
   headerDot: { position: 'absolute', top: 2, right: 2, width: 10, height: 10, borderRadius: 5, backgroundColor: '#ef4444', borderWidth: 1.5, borderColor: '#F8FBFF' },
-  notifyBanner: {
-    flexDirection: 'row', alignItems: 'center', backgroundColor: '#3b82f6',
-    borderRadius: 16, padding: 14, marginBottom: 20, gap: 10,
-  },
+  notifyBanner: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#3b82f6', borderRadius: 16, padding: 14, marginBottom: 20, gap: 10, },
   notifyText: { flex: 1, color: '#fff', fontWeight: '600', fontSize: 13 },
   sectionLabel: { fontSize: 13, fontWeight: '700', color: '#94a3b8', marginBottom: 14, marginLeft: 4, textTransform: 'uppercase', letterSpacing: 0.5 },
   blockList: { gap: 18 },
-  bigBlock: {
-    backgroundColor: '#fff',
-    borderRadius: 22,
-    flexDirection: 'row',
-    overflow: 'hidden',
-    elevation: 4,
-    shadowColor: '#3b82f6',
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 5 },
-  },
+  bigBlock: { backgroundColor: '#fff', borderRadius: 22, flexDirection: 'row', overflow: 'hidden', elevation: 4, shadowColor: '#3b82f6', shadowOpacity: 0.1, shadowRadius: 12, shadowOffset: { width: 0, height: 5 }, },
   accentBar: { width: 6 },
-  bigBlockContent: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: 20,
-  },
+  bigBlockContent: { flex: 1, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 20 },
   bigBlockLeft: { flexDirection: 'row', alignItems: 'center', flex: 1 },
   iconWrapper: { position: 'relative', marginRight: 16 },
   bigIcon: { width: 58, height: 58, borderRadius: 18, alignItems: 'center', justifyContent: 'center' },
