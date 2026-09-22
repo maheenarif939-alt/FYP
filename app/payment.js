@@ -104,7 +104,7 @@ export default function PayConsultationFee() {
 
           <View style={styles.reminderBox}>
             <Text style={styles.noteLabel}>Note: </Text>
-            <Text style={styles.reminderText}>After completing the transaction, please take a screenshot and upload it below.</Text>
+            <Text style={styles.reminderText}>After completing the transaction please take a screenshot and upload it below.</Text>
           </View>
 
           <Text style={styles.sectionHeading}>Payment Details</Text>
@@ -136,7 +136,7 @@ export default function PayConsultationFee() {
               </>
             )}
           </TouchableOpacity>
-
+          {/* Submitted button */}
           <TouchableOpacity style={styles.detectBtn} onPress={handleSubmitPayment} disabled={submitting}>
             <LinearGradient colors={['#3b82f6', '#8b5cf6']} style={styles.gradient}>
               {submitting ? (
@@ -211,5 +211,12 @@ const styles = StyleSheet.create({
   footer: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', backgroundColor: '#fff', paddingVertical: 15, paddingBottom: 20, position: 'absolute', bottom: 0, width: '100%', borderTopLeftRadius: 35, borderTopRightRadius: 35, elevation: 10, borderTopWidth: 1, borderColor: '#e2e8f0' },
   navItem: { alignItems: 'center' },
   navText: { fontSize: 10, fontWeight: '700', color: '#3b82f6', marginTop: 4 },
-  centerBtn: { backgroundColor: '#8b5cf6', padding: 16, borderRadius: 35, marginTop: -50, elevation: 8, shadowColor: '#8b5cf6', shadowOpacity: 0.4, shadowRadius: 10 }
+  centerBtn: { backgroundColor: '#8b5cf6',
+   padding: 16, 
+   borderRadius: 35, 
+   marginTop: -50, 
+   elevation: 8, 
+   shadowColor: '#8b5cf6', 
+   shadowOpacity: 0.4, 
+   shadowRadius: 10 }
 });
