@@ -3,17 +3,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import {
-  ActivityIndicator,
-  Alert,
-  Image,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
+import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View,
 } from 'react-native'
-
 import { uploadCaseImage } from '../api/client';
 
 export default function UploadImage() {
@@ -29,7 +20,7 @@ export default function UploadImage() {
     if (!permissionResult.granted) {
       Alert.alert(
         'Camera Permission Required',
-        'Please allow camera access so you can capture a photo of the affected skin area.'
+        'Please allow camera access so you can capture a photo of the affected facial skin area.'
       );
       return;
     }
@@ -43,8 +34,8 @@ export default function UploadImage() {
           onPress: async () => {
             const result = await ImagePicker.launchCameraAsync({
               quality: 0.5, // lower quality 
-              allowsEditing: true, // shows native crop/confirm screen with Retake option
-              cameraType: ImagePicker.CameraType.front, //  front camera
+              allowsEditing: true, // crop option
+              cameraType: ImagePicker.CameraType.front, 
             });
             if (!result.canceled) {
               setSelectedImage(result.assets[0].uri);
@@ -55,7 +46,7 @@ export default function UploadImage() {
       ]
     );
   }
-  // Gallery option
+  // from Gallery 
   const pickFromGallery = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResult.granted) {
@@ -76,7 +67,7 @@ export default function UploadImage() {
 
   const removeSelectedImage = () => setSelectedImage(null);
 
-  // Final upload to backend
+  // upload to backend
   const handleConfirm = async () => {
     if (!selectedImage) return;
 
@@ -143,7 +134,7 @@ export default function UploadImage() {
         </TouchableOpacity>
       </ScrollView>
 
-      {/* Bottom navigation */}
+      {/* footer */}
       <View style={styles.footer}>
         <TouchableOpacity style={styles.navItem} onPress={() => router.push('/dashboard')}>
           <Ionicons name="home" size={26} color="#3b82f6" />
@@ -174,51 +165,20 @@ const styles = StyleSheet.create({
   scroll: { padding: 20, paddingBottom: 120 },
   header: { flexDirection: 'row', alignItems: 'center', marginTop: 50, marginBottom: 20 },
   title: { fontSize: 24, fontWeight: 'bold', color: '#3b82f6', marginLeft: 15 },
-  imageBox: {
-    width: '100%',
-    height: 300,
-    backgroundColor: '#fff',
-    borderRadius: 30,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#e2e8f0',
-    borderStyle: 'dashed',
-    marginBottom: 10,
-    overflow: 'hidden',
-  },
+  imageBox: { width: '100%', height: 300, backgroundColor: '#fff', borderRadius: 30, justifyContent: 'center', alignItems: 'center',
+    borderWidth: 2, borderColor: '#e2e8f0', borderStyle: 'dashed', marginBottom: 10, overflow: 'hidden' },
   preview: { width: '100%', height: '100%' },
   retakeLink: { alignSelf: 'center', marginBottom: 15 },
   retakeLinkText: { color: '#ef4444', fontSize: 13, fontWeight: '600' },
-  optionBtn: {
-    flexDirection: 'row',
-    padding: 20,
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    marginBottom: 15,
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#e2e8f0',
-  },
+  optionBtn: { flexDirection: 'row', padding: 20, backgroundColor: '#fff', borderRadius: 20, marginBottom: 15, alignItems: 'center',
+    borderWidth: 1, borderColor: '#e2e8f0' },
   optText: { marginLeft: 15, fontSize: 16, fontWeight: '600', color: '#3b82f6' },
   confirmBtn: { width: '100%', height: 60, borderRadius: 30, marginTop: 10, overflow: 'hidden' },
   gradient: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   btnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
-  footer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    paddingVertical: 15,
-    paddingBottom: 20,
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
-    borderTopLeftRadius: 35,
-    borderTopRightRadius: 35,
-    borderTopWidth: 1,
-    borderColor: '#e2e8f0',
-  },
+  footer: { flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center', backgroundColor: '#fff',
+    paddingVertical: 15, paddingBottom: 20, position: 'absolute', bottom: 0, width: '100%', borderTopLeftRadius: 35, 
+    borderTopRightRadius: 35, borderTopWidth: 1, borderColor: '#e2e8f0' },
   navItem: { alignItems: 'center' },
   navText: { fontSize: 10, fontWeight: '700', color: '#3b82f6', marginTop: 4 },
   centerBtn: { backgroundColor: '#8b5cf6', padding: 16, borderRadius: 35, marginTop: -50, elevation: 8 },
