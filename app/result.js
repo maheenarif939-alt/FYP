@@ -45,10 +45,10 @@ export default function ResultDetail() {
       {loading ? (
         <ActivityIndicator size="large" color="#3b82f6" style={{ marginTop: 40 }} />
       ) : !caseData ? (
-        <Text style={styles.emptyText}>Result nahi mila.</Text>
+        <Text style={styles.emptyText}>No results found.</Text>
       ) : (
         <ScrollView contentContainerStyle={styles.scroll}>
-          {/* Uploaded / Annotated Image */}
+          {/* Uploaded Image */}
           <View style={styles.imgCard}>
             <Image
               source={{ uri: caseData.result_image || caseData.image }}
@@ -61,7 +61,7 @@ export default function ResultDetail() {
             </View>
           </View>
 
-          {/* Details Section */}
+          {/* Details */}
           <View style={styles.card}>
             <View style={styles.row}>
               <Text style={styles.label}>Disease Detected:</Text>
@@ -88,7 +88,7 @@ export default function ResultDetail() {
 
             <Text style={styles.sectionTitle}>Doctor's Note</Text>
             <Text style={styles.note}>
-              {caseData.doctor_note || 'Doctor ne abhi tak note nahi likha.'}
+              {caseData.doctor_note || 'The doctor has not added the notes yet.'}
             </Text>
           </View>
         </ScrollView>
