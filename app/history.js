@@ -66,7 +66,7 @@ export default function History() {
         subtitle: 'Tap to pay consultation fee',
       };
     }
-    // in progress
+    //  progress
     return {
       key: 'progress',
       label: 'In Progress',
@@ -171,7 +171,7 @@ export default function History() {
       ) : cases.length === 0 ? (
         <View style={styles.emptyBox}>
           <Ionicons name="document-text-outline" size={48} color="#94a3b8" />
-          <Text style={styles.emptyText}>No scans yet. Start your first skin analysis!</Text>
+          <Text style={styles.emptyText}>Start your first skin analysis. </Text>
         </View>
       ) : (
         <FlatList
@@ -193,22 +193,9 @@ const styles = StyleSheet.create({
   emptyBox: { alignItems: 'center', marginTop: 60, paddingHorizontal: 30 },
   emptyText: { textAlign: 'center', color: '#64748b', marginTop: 12, fontSize: 14 },
   listPadding: { padding: 20 },
-  card: {
-    backgroundColor: '#fff',
-    padding: 16,
-    borderRadius: 18,
-    marginBottom: 15,
-    elevation: 4,
-    shadowColor: '#3b82f6',
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-  },
-  cardTop: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-  },
+  card: { backgroundColor: '#fff', padding: 16, borderRadius: 18, marginBottom: 15, elevation: 4, shadowColor: '#3b82f6', shadowOpacity: 0.1, shadowRadius: 10,
+    shadowOffset: { width: 0, height: 4 }, },
+  cardTop: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', },
   cardLeft: { flexDirection: 'row', alignItems: 'flex-start', flex: 1, marginRight: 10 },
   iconBox: { padding: 10, borderRadius: 12, marginRight: 12 },
   textBlock: { flex: 1 },
