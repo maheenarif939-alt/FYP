@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { getCaseDetail, verifyCase } from '../api/client';
 
 export default function DoctorVerify() {
@@ -67,87 +67,96 @@ export default function DoctorVerify() {
       ) : !caseData ? (
         <Text style={styles.emptyText}>Case not found.</Text>
       ) : (
-        <ScrollView contentContainerStyle={styles.scroll}>
-          <Image
-            source={{ uri: caseData.result_image || caseData.image }}
-            style={styles.faceImage}
-          />
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
+        >
+          <ScrollView
+            contentContainerStyle={styles.scroll}
+            keyboardShouldPersistTaps="handled"
+          >
+            <Image
+              source={{ uri: caseData.result_image || caseData.image }}
+              style={styles.faceImage}
+            />
 
-          <View style={styles.card}>
-            <Text style={styles.label}>Patient</Text>
-            <Text style={styles.value}>{caseData.patient?.full_name}</Text>
-            <Text style={styles.label}>Case Number</Text>
-            <Text style={styles.value}>#{caseData.case_number}</Text>
-          </View>
-
-          <View style={styles.card}>
-            <View style={styles.sectionHeaderRow}>
-              <Ionicons name="flash" size={18} color="#3b82f6" />
-              <Text style={styles.sectionHeading}>AI Model Prediction</Text>
+            <View style={styles.card}>
+              <Text style={styles.label}>Patient</Text>
+              <Text style={styles.value}>{caseData.patient?.full_name}</Text>
+              <Text style={styles.label}>Case Number</Text>
+              <Text style={styles.value}>#{caseData.case_number}</Text>
             </View>
 
-            <Text style={styles.label}>Detected Condition</Text>
-            <Text style={styles.diseaseText}>{caseData.disease_detected || 'N/A'}</Text>
+            <View style={styles.card}>
+              <View style={styles.sectionHeaderRow}>
+                <Ionicons name="flash" size={18} color="#3b82f6" />
+                <Text style={styles.sectionHeading}>AI Model Prediction</Text>
+              </View>
 
-            <View style={styles.confidenceRow}>
-              <Text style={styles.label}>Confidence</Text>
-              <View style={[styles.confidenceBadge, confidencePct >= 70 ? styles.confidenceHigh : styles.confidenceLow]}>
-                <Text style={[styles.confidenceText, confidencePct >= 70 ? { color: '#166534' } : { color: '#92400e' }]}>
-                  {confidencePct}%
-                </Text>
+              <Text style={styles.label}>Detected Condition</Text>
+              <Text style={styles.diseaseText}>{caseData.disease_detected || 'N/A'}</Text>
+
+              <View style={styles.confidenceRow}>
+                <Text style={styles.label}>Confidence</Text>
+                <View style={[styles.confidenceBadge, confidencePct >= 70 ? styles.confidenceHigh : styles.confidenceLow]}>
+                  <Text style={[styles.confidenceText, confidencePct >= 70 ? { color: '#166534' } : { color: '#92400e' }]}>
+                    {confidencePct}%
+                  </Text>
+                </View>
               </View>
             </View>
-          </View>
 
-          <View style={styles.card}>
-            <View style={styles.sectionHeaderRow}>
-              <Ionicons name="medkit" size={18} color="#3b82f6" />
-              <Text style={styles.sectionHeading}>Suggested Medicine</Text>
+            <View style={styles.card}>
+              <View style={styles.sectionHeaderRow}>
+                <Ionicons name="medkit" size={18} color="#3b82f6" />
+                <Text style={styles.sectionHeading}>Suggested Medicine</Text>
+              </View>
+              <TextInput
+                style={styles.input}
+                placeholder="e.g. Clindamycin gel 1%, twice daily"
+                value={medicine}
+                onChangeText={setMedicine}
+              />
             </View>
-            <TextInput
-              style={styles.input}
-              placeholder="e.g. Clindamycin gel 1%, twice daily"
-              value={medicine}
-              onChangeText={setMedicine}
-            />
-          </View>
 
-          <View style={styles.card}>
-            <View style={styles.sectionHeaderRow}>
-              <Ionicons name="create-outline" size={18} color="#3b82f6" />
-              <Text style={styles.sectionHeading}>Doctor's Note</Text>
+            <View style={styles.card}>
+              <View style={styles.sectionHeaderRow}>
+                <Ionicons name="create-outline" size={18} color="#3b82f6" />
+                <Text style={styles.sectionHeading}>Doctor's Note</Text>
+              </View>
+              <TextInput
+                style={styles.noteInput}
+                placeholder="Note for the patient..."
+                multiline
+                value={note}
+                onChangeText={setNote}
+              />
             </View>
-            <TextInput
-              style={styles.noteInput}
-              placeholder="Note for the patient..."
-              multiline
-              value={note}
-              onChangeText={setNote}
-            />
-          </View>
 
-          <TouchableOpacity
-            style={[styles.approveButton, submitting && { opacity: 0.6 }]}
-            onPress={() => handleDecision('approve')}
-            disabled={submitting}
-          >
-            {submitting ? <ActivityIndicator color="#fff" /> : (
-              <>
-                <Ionicons name="checkmark-circle" size={20} color="#fff" />
-                <Text style={styles.buttonText}>Approved</Text>
-              </>
-            )}
-          </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.approveButton, submitting && { opacity: 0.6 }]}
+              onPress={() => handleDecision('approve')}
+              disabled={submitting}
+            >
+              {submitting ? <ActivityIndicator color="#fff" /> : (
+                <>
+                  <Ionicons name="checkmark-circle" size={20} color="#fff" />
+                  <Text style={styles.buttonText}>Approved</Text>
+                </>
+              )}
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            style={[styles.rejectButton, submitting && { opacity: 0.6 }]}
-            onPress={() => handleDecision('reject')}
-            disabled={submitting}
-          >
-            <Ionicons name="camera-reverse-outline" size={20} color="#ef4444" />
-            <Text style={styles.rejectButtonText}>Retake</Text>
-          </TouchableOpacity>
-        </ScrollView>
+            <TouchableOpacity
+              style={[styles.rejectButton, submitting && { opacity: 0.6 }]}
+              onPress={() => handleDecision('reject')}
+              disabled={submitting}
+            >
+              <Ionicons name="camera-reverse-outline" size={20} color="#ef4444" />
+              <Text style={styles.rejectButtonText}>Retake</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </KeyboardAvoidingView>
       )}
     </LinearGradient>
   );
