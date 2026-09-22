@@ -224,7 +224,7 @@ export function deleteCase(id) {
   return request(`/cases/${id}/delete/`, { method: 'DELETE', auth: true });
 }
 
-// Payment
+// Payment 
 export function submitPayment(caseId, { transaction_id, method, screenshotUri }) {
   return uploadFile(`/payments/${caseId}/submit/`, screenshotUri, 'screenshot', {
     transaction_id,
