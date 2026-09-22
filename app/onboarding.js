@@ -18,7 +18,7 @@ export default function Onboarding() {
 
   return (
     <View style={styles.container}>
-      {/* Skip Button */}
+      {/*  Button */}
       <TouchableOpacity style={styles.skipBtn} onPress={() => router.replace('/login')}>
         <Text style={styles.skipText}>Skip</Text>
       </TouchableOpacity>
@@ -42,7 +42,6 @@ export default function Onboarding() {
           </View>
         )}
       />
-
       {/* Dots */}
       <View style={styles.pagination}>
         {slides.map((_, i) => (
@@ -68,31 +67,13 @@ const styles = StyleSheet.create({
   skipBtn: { position: 'absolute', top: 60, right: 20, zIndex: 1 },
   skipText: { fontSize: 16, color: '#64748b', fontWeight: '500' },
   slide: { width, alignItems: 'center', justifyContent: 'center', padding: 20 },
-  
-  imageBox: { 
-    width: 320, 
-    height: 320, 
-    borderRadius: 30, 
-    backgroundColor: '#FFFFFF', 
-    marginBottom: 40,
-    overflow: 'hidden', 
-    borderWidth: 1, 
-    borderColor: '#E2E8F0',
-    elevation: 4, 
-  },
-  
-  image: { 
-    width: '100%', 
-    height: '100%', 
-    resizeMode: 'cover' 
-  },
-  
+  imageBox: {  width: 320,  height: 320,  borderRadius: 30,  backgroundColor: '#FFFFFF',  marginBottom: 40,
+    overflow: 'hidden',  borderWidth: 1,  borderColor: '#E2E8F0', elevation: 4,  },
+  image: {  width: '100%',  height: '100%',  resizeMode: 'cover' },
   pagination: { flexDirection: 'row', justifyContent: 'center', marginBottom: 30 },
   dot: { width: 10, height: 10, borderRadius: 5, marginHorizontal: 5 },
-  
   title: { fontSize: 22, fontWeight: 'bold', textAlign: 'center', color: '#1e293b', marginBottom: 10 },
   desc: { fontSize: 14, color: '#64748b', textAlign: 'center', paddingHorizontal: 40, marginBottom: 20 },
-  
   button: { width: '85%', height: 55, alignSelf: 'center', marginBottom: 50 },
   gradient: { flex: 1, borderRadius: 27.5, justifyContent: 'center', alignItems: 'center' },
   btnText: { color: '#fff', fontSize: 16, fontWeight: 'bold' }
