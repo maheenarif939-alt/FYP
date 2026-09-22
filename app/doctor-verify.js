@@ -115,6 +115,7 @@ export default function DoctorVerify() {
               <TextInput
                 style={styles.input}
                 placeholder="e.g. Clindamycin gel 1%, twice daily"
+                placeholderTextColor="#000000"
                 value={medicine}
                 onChangeText={setMedicine}
               />
@@ -123,11 +124,12 @@ export default function DoctorVerify() {
             <View style={styles.card}>
               <View style={styles.sectionHeaderRow}>
                 <Ionicons name="create-outline" size={18} color="#3b82f6" />
-                <Text style={styles.sectionHeading}>Doctor's Note</Text>
+                <Text style={styles.sectionHeading}>Doctor Note</Text>
               </View>
               <TextInput
                 style={styles.noteInput}
                 placeholder="Note for the patient..."
+                placeholderTextColor="#000000"
                 multiline
                 value={note}
                 onChangeText={setNote}
