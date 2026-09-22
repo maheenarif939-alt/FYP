@@ -86,7 +86,6 @@ export default function Signup() {
           value={fullName}
           onChangeText={setFullName}
         />
-
         <Text style={styles.label}>Email Address</Text>
         <TextInput
           placeholder="Enter your email"
@@ -97,7 +96,6 @@ export default function Signup() {
           value={email}
           onChangeText={setEmail}
         />
-
         <Text style={styles.label}>Age</Text>
         <TextInput
           placeholder="Enter your age"
@@ -107,7 +105,6 @@ export default function Signup() {
           value={age}
           onChangeText={setAge}
         />
-
         <Text style={styles.label}>Password</Text>
         <View style={styles.passwordContainer}>
           <TextInput
