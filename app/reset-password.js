@@ -120,7 +120,7 @@ export default function ResetPassword() {
             </TouchableOpacity>
           </View>
 
-          {/* Live password rules checklist */}
+          {/* password rules checklist */}
           <View style={styles.rulesBox}>
             <RuleRow passed={checks.length} text="At least 8 characters" />
             <RuleRow passed={checks.uppercase} text="One uppercase letter (A-Z)" />
@@ -167,7 +167,12 @@ const styles = StyleSheet.create({
   input: { backgroundColor: '#fff', padding: 15, borderRadius: 15, marginBottom: 15, borderWidth: 1, borderColor: '#3b82f6', color: '#3b82f6', fontWeight: '500' },
   passwordContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', borderRadius: 15, marginBottom: 12, borderWidth: 1, borderColor: '#3b82f6', paddingRight: 10 },
   passwordInput: { flex: 1, padding: 15, color: '#3b82f6', fontWeight: '500' },
-  rulesBox: { backgroundColor: '#f8fafc', borderRadius: 12, padding: 12, marginBottom: 18, borderWidth: 1, borderColor: '#e2e8f0' },
+  rulesBox: { backgroundColor: '#f8fafc', 
+    borderRadius: 12, 
+    padding: 12, 
+    marginBottom: 18, 
+    borderWidth: 1, 
+    borderColor: '#e2e8f0' },
   ruleRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6, gap: 8 },
   ruleText: { fontSize: 12, fontWeight: '600' },
   btn: { height: 55, borderRadius: 27.5, marginTop: 5, overflow: 'hidden' },
