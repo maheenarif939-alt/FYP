@@ -75,7 +75,7 @@ export default function Login() {
           </TouchableOpacity>
         </View>
 
-        {/* Email Field */}
+        {/* Email  */}
         <Text style={styles.label}>Email</Text>
         <TextInput
           placeholder="Enter your email"
@@ -86,7 +86,6 @@ export default function Login() {
           value={email}
           onChangeText={setEmail}
         />
-
         {/* Password Field */}
         <Text style={styles.label}>Password</Text>
         <View style={styles.passwordContainer}>
