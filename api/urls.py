@@ -1,27 +1,30 @@
 from django.urls import path
-
-from .views import signup, login, profile, ImageUploadView, PaymentView, case_tracking, result, doctor_dashboard, pending_cases,  doctor_verify, approved_cases, approved_case_view, approved_case_details, all_cases, doctor_profile, history, dashboard, doctor_profile, doctor_account
-
+from . import views
 
 urlpatterns = [
-    path('signup/', signup),
-    path('login/', login),
-    path('profile/', profile),
-    path('upload/', ImageUploadView.as_view()),
-    path('payment/', PaymentView.as_view()),
-    path('case-tracking/', case_tracking),
-    path('result/', result),
-    path('doctor-dashboard/', doctor_dashboard),
-    path('pending-cases/',pending_cases,name='pending-cases'),
-    path('doctor-verify/',doctor_verify,name='doctor-verify'),
-    path('approved-cases/',approved_cases,name='approved-cases'),
-    path('approved-case-view/',approved_case_view,name='approved-case-view'),
-    path('approved-case/<str:case_id>/',approved_case_details,name='approved-case-details'),
-    path('all-cases/',all_cases,name='all-cases'),
-    path('doctor-profile/',doctor_profile,name='doctor-profile'),
-    path('history/',history,name='history'),
-    path('dashboard/',dashboard,name='dashboard'),
-    path('doctor-page/',doctor_profile,name='doctor-page'),
-    path('doctor-account/',doctor_account,name='doctor-account'),
+    # Accounts
+    path('accounts/signup/', views.signup),
+    path('accounts/doctor-signup/', views.doctor_signup),
+    path('accounts/login/', views.login),
+    path('accounts/profile/', views.profile),
+    path('accounts/profile/update/', views.update_profile),
+    path('accounts/verification-document/', views.UploadVerificationDocView.as_view()),
+    path('accounts/verify-email/', views.verify_email),
+    path('accounts/resend-verification/', views.resend_verification),
+    path('accounts/forgot-password/', views.forgot_password),
+    path('accounts/reset-password/', views.reset_password),
 
+    # Cases (specific paths pehle, dynamic <case_id> baad mein)
+    path('cases/upload/', views.UploadCaseView.as_view()),
+    path('cases/mine/', views.my_cases),
+    path('cases/pending/', views.pending_cases),
+    path('cases/approved/', views.approved_cases),
+    path('cases/all/', views.all_cases),
+    path('cases/<str:case_id>/', views.case_detail),
+    path('cases/<str:case_id>/analyze/', views.analyze_case),
+    path('cases/<str:case_id>/verify/', views.verify_case),
+    path('cases/<str:case_id>/delete/', views.delete_case),
+
+    # Payments
+    path('payments/<str:case_id>/submit/', views.SubmitPaymentView.as_view()),
 ]
