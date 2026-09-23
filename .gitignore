@@ -1,1 +1,17 @@
-api/ml_models/best.pt
+# Python
+venv/
+.venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+*.pyd
+
+# Environment
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+EOF
