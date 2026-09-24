@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { signupPatient } from '../api/client';
 
 const SPECIAL_CHARS = '!@#$%^&*()_+-=[]{}|;:,.<>?/~`"\'\\';
@@ -71,92 +71,102 @@ export default function Signup() {
 
   return (
     <LinearGradient colors={['#F8FBFF', '#E0EAFF']} style={styles.container}>
-      <ScrollView contentContainerStyle={styles.inner} showsVerticalScrollIndicator={false}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
+      >
+        <ScrollView
+          contentContainerStyle={styles.inner}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
 
-        <Image source={require('../assets/images/logo.png')} style={styles.logo} />
+          <Image source={require('../assets/images/logo.png')} style={styles.logo} />
 
-        <Text style={styles.header}>Create Account</Text>
-        <Text style={styles.subHeader}>Sign up to start your AI skin analysis journey</Text>
+          <Text style={styles.header}>Create Account</Text>
+          <Text style={styles.subHeader}>Sign up to start your AI skin analysis journey</Text>
 
-        <Text style={styles.label}>Full Name</Text>
-        <TextInput
-          placeholder="Enter your full name"
-          placeholderTextColor="#3b82f6"
-          style={styles.input}
-          value={fullName}
-          onChangeText={setFullName}
-        />
-        <Text style={styles.label}>Email Address</Text>
-        <TextInput
-          placeholder="Enter your email"
-          placeholderTextColor="#3b82f6"
-          style={styles.input}
-          keyboardType="email-address"
-          autoCapitalize="none"
-          value={email}
-          onChangeText={setEmail}
-        />
-        <Text style={styles.label}>Age</Text>
-        <TextInput
-          placeholder="Enter your age"
-          placeholderTextColor="#3b82f6"
-          style={styles.input}
-          keyboardType="numeric"
-          value={age}
-          onChangeText={setAge}
-        />
-        <Text style={styles.label}>Password</Text>
-        <View style={styles.passwordContainer}>
+          <Text style={styles.label}>Full Name</Text>
           <TextInput
-            placeholder="Create password"
+            placeholder="Enter your full name"
             placeholderTextColor="#3b82f6"
-            secureTextEntry={!showPassword}
-            style={styles.passwordInput}
-            value={password}
-            onChangeText={setPassword}
+            style={styles.input}
+            value={fullName}
+            onChangeText={setFullName}
           />
-          <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={{ padding: 5 }}>
-            <Ionicons name={showPassword ? "eye-off" : "eye"} size={22} color="#3b82f6" />
-          </TouchableOpacity>
-        </View>
-
-        <View style={styles.rulesBox}>
-          <RuleRow passed={checks.length} text="At least 8 characters" />
-          <RuleRow passed={checks.uppercase} text="One uppercase letter (A-Z)" />
-          <RuleRow passed={checks.number} text="One number (0-9)" />
-          <RuleRow passed={checks.special} text="One special character (!@#$%...)" />
-        </View>
-
-        <Text style={styles.label}>Confirm Password</Text>
-        <View style={styles.passwordContainer}>
+          <Text style={styles.label}>Email Address</Text>
           <TextInput
-            placeholder="Confirm your password"
+            placeholder="Enter your email"
             placeholderTextColor="#3b82f6"
-            secureTextEntry={!showConfirmPassword}
-            style={styles.passwordInput}
-            value={confirmPassword}
-            onChangeText={setConfirmPassword}
+            style={styles.input}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            value={email}
+            onChangeText={setEmail}
           />
-          <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={{ padding: 5 }}>
-            <Ionicons name={showConfirmPassword ? "eye-off" : "eye"} size={22} color="#3b82f6" />
+          <Text style={styles.label}>Age</Text>
+          <TextInput
+            placeholder="Enter your age"
+            placeholderTextColor="#3b82f6"
+            style={styles.input}
+            keyboardType="numeric"
+            value={age}
+            onChangeText={setAge}
+          />
+          <Text style={styles.label}>Password</Text>
+          <View style={styles.passwordContainer}>
+            <TextInput
+              placeholder="Create password"
+              placeholderTextColor="#3b82f6"
+              secureTextEntry={!showPassword}
+              style={styles.passwordInput}
+              value={password}
+              onChangeText={setPassword}
+            />
+            <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={{ padding: 5 }}>
+              <Ionicons name={showPassword ? "eye-off" : "eye"} size={22} color="#3b82f6" />
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.rulesBox}>
+            <RuleRow passed={checks.length} text="At least 8 characters" />
+            <RuleRow passed={checks.uppercase} text="One uppercase letter (A-Z)" />
+            <RuleRow passed={checks.number} text="One number (0-9)" />
+            <RuleRow passed={checks.special} text="One special character (!@#$%...)" />
+          </View>
+
+          <Text style={styles.label}>Confirm Password</Text>
+          <View style={styles.passwordContainer}>
+            <TextInput
+              placeholder="Confirm your password"
+              placeholderTextColor="#3b82f6"
+              secureTextEntry={!showConfirmPassword}
+              style={styles.passwordInput}
+              value={confirmPassword}
+              onChangeText={setConfirmPassword}
+            />
+            <TouchableOpacity onPress={() => setShowConfirmPassword(!showConfirmPassword)} style={{ padding: 5 }}>
+              <Ionicons name={showConfirmPassword ? "eye-off" : "eye"} size={22} color="#3b82f6" />
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity style={styles.btn} onPress={handleSignup} disabled={loading}>
+            <LinearGradient colors={['#3b82f6', '#8b5cf6']} style={styles.gradient}>
+              {loading ? (
+                <ActivityIndicator color="#fff" />
+              ) : (
+                <Text style={styles.btnText}>Register Now</Text>
+              )}
+            </LinearGradient>
           </TouchableOpacity>
-        </View>
 
-        <TouchableOpacity style={styles.btn} onPress={handleSignup} disabled={loading}>
-          <LinearGradient colors={['#3b82f6', '#8b5cf6']} style={styles.gradient}>
-            {loading ? (
-              <ActivityIndicator color="#fff" />
-            ) : (
-              <Text style={styles.btnText}>Register Now</Text>
-            )}
-          </LinearGradient>
-        </TouchableOpacity>
+          <TouchableOpacity onPress={() => router.back()}>
+            <Text style={styles.footerText}>Already have an account? <Text style={{ fontWeight: 'bold', color: '#3b82f6' }}>Login</Text></Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.back()}>
-          <Text style={styles.footerText}>Already have an account? <Text style={{ fontWeight: 'bold', color: '#3b82f6' }}>Login</Text></Text>
-        </TouchableOpacity>
-
-      </ScrollView>
+        </ScrollView>
+      </KeyboardAvoidingView>
     </LinearGradient>
   );
 }
