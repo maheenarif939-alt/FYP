@@ -1,15 +1,29 @@
 import React, { useState, useEffect } from 'react';
 import {
-  ShieldCheck, Mail, Lock, ArrowRight, LogOut, Users, Activity, Clock,
+  Mail, Lock, ArrowRight, LogOut, Users, Activity,
   Image as ImageIcon, Eye, EyeOff, Plus, Power, X, Stethoscope, Wallet,
   ScanLine, ClipboardList, LayoutGrid, UserRound, Trash2, Brain
 } from 'lucide-react';
-import { BASE_URL } from './config';
+import {
+  MEDIA_URL, adminLogin, fetchStats, fetchModeration, fetchPayments,
+  fetchDoctors, fetchPatients, fetchAllCases, fetchAiAnalysis,
+  approvePayment, moderationAction, toggleDoctor, deleteDoctor, addDoctor,
+} from './api';
 
-// Disease breakdown bar shades 
 const CHART_SHADES = ['#0E6B57', '#1F8A70', '#3EA88C', '#6FC1AA', '#A3D9C7', '#D3EEE4'];
 
+const NAV_ITEMS = [
+  { id: 'overview', label: 'Overview', icon: LayoutGrid },
+  { id: 'moderation', label: 'Scan review', icon: ScanLine },
+  { id: 'payments', label: 'Payments', icon: Wallet },
+  { id: 'doctors', label: 'Doctors', icon: Stethoscope },
+  { id: 'patients', label: 'Patients', icon: UserRound },
+  { id: 'ai-analysis', label: 'AI Analysis', icon: Brain },
+  { id: 'cases', label: 'All cases', icon: ClipboardList },
+];
+
 export default function App() {
+  //  Auth state 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -17,8 +31,10 @@ export default function App() {
   const [loginError, setLoginError] = useState('');
   const [loggingIn, setLoggingIn] = useState(false);
 
+  //  Navigation 
   const [activePage, setActivePage] = useState('overview');
 
+  // Dashboard data 
   const [stats, setStats] = useState({
     total_ai_scans: 0, total_patients: 0,
     total_doctors: 0, total_revenue: 0, pending_actions: 0, disease_breakdown: [],
@@ -31,6 +47,7 @@ export default function App() {
   const [aiCases, setAiCases] = useState([]);
   const [selectedAiCase, setSelectedAiCase] = useState(null);
 
+  //  Add doctor modal 
   const [showAddDoctor, setShowAddDoctor] = useState(false);
   const [newDoctor, setNewDoctor] = useState({ full_name: '', email: '', password: '', specialty: '' });
   const [addDoctorError, setAddDoctorError] = useState('');
@@ -39,140 +56,64 @@ export default function App() {
     if (isLoggedIn) loadAllData();
   }, [isLoggedIn]);
 
+  //  Data loading 
   const loadAllData = () => {
-    fetchStats();
-    fetchModeration();
-    fetchPayments();
-    fetchDoctors();
-    fetchPatients();
-    fetchAllCases();
-    fetchAiAnalysis();
+    fetchStats().then((d) => setStats(d.stats)).catch((e) => console.log('Stats:', e.message));
+    fetchModeration().then((d) => setModerationCases(d.cases)).catch((e) => console.log('Moderation:', e.message));
+    fetchPayments().then((d) => setPayments(d.payments)).catch((e) => console.log('Payments:', e.message));
+    fetchDoctors().then((d) => setDoctors(d.doctors)).catch((e) => console.log('Doctors:', e.message));
+    fetchPatients().then((d) => setPatients(d.patients)).catch((e) => console.log('Patients:', e.message));
+    fetchAllCases().then((d) => setAllCases(d.cases)).catch((e) => console.log('Cases:', e.message));
+    fetchAiAnalysis().then((d) => setAiCases(d.cases)).catch((e) => console.log('AI analysis:', e.message));
   };
 
-  const fetchStats = async () => {
-    try {
-      const res = await fetch(BASE_URL + '/admin/stats/');
-      const data = await res.json();
-      if (res.ok) setStats(data.stats);
-    } catch (err) { console.log('Stats load error:', err); }
-  };
-
-  const fetchModeration = async () => {
-    try {
-      const res = await fetch(BASE_URL + '/admin/moderation/');
-      const data = await res.json();
-      if (res.ok) setModerationCases(data.cases);
-    } catch (err) { console.log('Moderation load error:', err); }
-  };
-
-  const fetchPayments = async () => {
-    try {
-      const res = await fetch(BASE_URL + '/admin/payments/');
-      const data = await res.json();
-      if (res.ok) setPayments(data.payments);
-    } catch (err) { console.log('Payments load error:', err); }
-  };
-
-  const fetchDoctors = async () => {
-    try {
-      const res = await fetch(BASE_URL + '/admin/doctors/');
-      const data = await res.json();
-      if (res.ok) setDoctors(data.doctors);
-    } catch (err) { console.log('Doctors load error:', err); }
-  };
-
-  const fetchPatients = async () => {
-    try {
-      const res = await fetch(BASE_URL + '/admin/patients/');
-      const data = await res.json();
-      if (res.ok) setPatients(data.patients);
-    } catch (err) { console.log('Patients load error:', err); }
-  };
-
-  const fetchAllCases = async () => {
-    try {
-      const res = await fetch(BASE_URL + '/all-cases/');
-      const data = await res.json();
-      if (res.ok) setAllCases(data.cases);
-    } catch (err) { console.log('Cases load error:', err); }
-  };
-
-  const fetchAiAnalysis = async () => {
-    try {
-      const res = await fetch(BASE_URL + '/admin/ai-analysis/');
-      const data = await res.json();
-      if (res.ok) setAiCases(data.cases);
-    } catch (err) { console.log('AI analysis load error:', err); }
-  };
-
+  //  Handlers 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoginError('');
     setLoggingIn(true);
     try {
-      const res = await fetch(BASE_URL + '/admin-login/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: email, password: password }),
-      });
-      const data = await res.json();
-      setLoggingIn(false);
-      if (res.ok) {
-        setIsLoggedIn(true);
-      } else {
-        setLoginError(data.error || 'Invalid credentials');
-      }
+      await adminLogin(email, password);
+      setIsLoggedIn(true);
     } catch (err) {
+      setLoginError(err.message);
+    } finally {
       setLoggingIn(false);
-      setLoginError('Failed to connect to the server.');
     }
   };
 
   const handleApprovePayment = async (paymentId, caseId) => {
     try {
-      await fetch(BASE_URL + '/admin/payments/approve/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ payment_id: paymentId, case_id: caseId }),
-      });
-      fetchPayments();
-      fetchStats();
-    } catch (err) { alert('The payment could not be processed.'); }
+      await approvePayment(paymentId, caseId);
+      loadAllData();
+    } catch (err) {
+      alert('The payment could not be processed.');
+    }
   };
 
   const handleImageAction = async (caseId, action) => {
     try {
-      await fetch(BASE_URL + '/admin/moderation/action/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ case_id: caseId, action: action }),
-      });
-      fetchModeration();
-      fetchStats();
-    } catch (err) { alert('The action could not be performed.'); }
+      await moderationAction(caseId, action);
+      loadAllData();
+    } catch (err) {
+      alert('The action could not be performed.');
+    }
   };
 
   const handleToggleDoctor = async (docEmail) => {
     try {
-      await fetch(BASE_URL + '/admin/doctors/toggle/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: docEmail }),
-      });
-      fetchDoctors();
-    } catch (err) { alert('The status could not be changed.'); }
+      await toggleDoctor(docEmail);
+      fetchDoctors().then((d) => setDoctors(d.doctors));
+    } catch (err) {
+      alert('The status could not be changed.');
+    }
   };
 
   const handleDeleteDoctor = async (docEmail) => {
     if (!window.confirm('Are you sure you want to permanently delete this doctor account?')) return;
     try {
-      await fetch(BASE_URL + '/admin/doctors/delete/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: docEmail }),
-      });
-      fetchDoctors();
-      fetchStats();
+      await deleteDoctor(docEmail);
+      loadAllData();
     } catch (err) {
       alert('Doctor could not be deleted.');
     }
@@ -182,25 +123,16 @@ export default function App() {
     e.preventDefault();
     setAddDoctorError('');
     try {
-      const res = await fetch(BASE_URL + '/admin/doctors/add/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newDoctor),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setShowAddDoctor(false);
-        setNewDoctor({ full_name: '', email: '', password: '', specialty: '' });
-        fetchDoctors();
-        fetchStats();
-      } else {
-        setAddDoctorError(data.error || 'The doctor could not be added.');
-      }
+      await addDoctor(newDoctor);
+      setShowAddDoctor(false);
+      setNewDoctor({ full_name: '', email: '', password: '', specialty: '' });
+      loadAllData();
     } catch (err) {
-      setAddDoctorError('Failed to connect to the server.');
+      setAddDoctorError(err.message);
     }
   };
 
+  //  Login screen 
   if (!isLoggedIn) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#F4F5F1] p-6" style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}>
@@ -223,7 +155,7 @@ export default function App() {
                     type="email"
                     placeholder="admin@dermacare.com"
                     value={email}
-                    onChange={function (e) { setEmail(e.target.value); }}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="bg-transparent w-full outline-none text-[#1B211D] text-sm"
                     required
                   />
@@ -238,10 +170,10 @@ export default function App() {
                     type={showPassword ? 'text' : 'password'}
                     placeholder="Enter your password"
                     value={password}
-                    onChange={function (e) { setPassword(e.target.value); }}
+                    onChange={(e) => setPassword(e.target.value)}
                     className="bg-transparent w-full outline-none text-[#1B211D] text-sm"
                   />
-                  <button type="button" onClick={function () { setShowPassword(!showPassword); }} className="text-[#5C6B62]">
+                  <button type="button" onClick={() => setShowPassword(!showPassword)} className="text-[#5C6B62]">
                     {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                   </button>
                 </div>
@@ -264,26 +196,17 @@ export default function App() {
     );
   }
 
-  const pendingModerationCount = moderationCases.filter(function (c) { return c.image_status === 'Pending Review'; }).length;
-  const pendingPaymentsCount = payments.filter(function (p) { return p.status === 'Pending Verification'; }).length;
+  //  Derived values 
+  const pendingModerationCount = moderationCases.filter((c) => c.image_status === 'Pending Review').length;
+  const pendingPaymentsCount = payments.filter((p) => p.status === 'Pending Verification').length;
+  const navWithCounts = NAV_ITEMS.map((item) => ({
+    ...item,
+    count: item.id === 'moderation' ? pendingModerationCount : item.id === 'payments' ? pendingPaymentsCount : 0,
+  }));
+  const pageTitle = navWithCounts.find((n) => n.id === activePage)?.label || '';
+  const totalDiseaseCount = stats.disease_breakdown.reduce((s, x) => s + x.count, 0);
 
-  const navItems = [
-    { id: 'overview', label: 'Overview', icon: LayoutGrid },
-    { id: 'moderation', label: 'Scan review', icon: ScanLine, count: pendingModerationCount },
-    { id: 'payments', label: 'Payments', icon: Wallet, count: pendingPaymentsCount },
-    { id: 'doctors', label: 'Doctors', icon: Stethoscope },
-    { id: 'patients', label: 'Patients', icon: UserRound },
-    { id: 'ai-analysis', label: 'AI Analysis', icon: Brain },
-    { id: 'cases', label: 'All cases', icon: ClipboardList },
-  ];
-
-  let pageTitle = '';
-  for (let i = 0; i < navItems.length; i++) {
-    if (navItems[i].id === activePage) pageTitle = navItems[i].label;
-  }
-
-  const totalDiseaseCount = stats.disease_breakdown.reduce(function (s, x) { return s + x.count; }, 0);
-
+  //  Dashboard 
   return (
     <div className="min-h-screen flex bg-[#F4F5F1] text-[#1B211D]" style={{ fontFamily: "'IBM Plex Sans', sans-serif" }}>
 
@@ -296,13 +219,13 @@ export default function App() {
         </div>
 
         <nav className="flex-1 px-3 py-4 space-y-1">
-          {navItems.map(function (item) {
+          {navWithCounts.map((item) => {
             const Icon = item.icon;
             const active = activePage === item.id;
             return (
               <button
                 key={item.id}
-                onClick={function () { setActivePage(item.id); }}
+                onClick={() => setActivePage(item.id)}
                 className={'w-full flex items-center justify-between px-3 py-2.5 rounded-md text-sm transition-colors border-l-2 ' + (active ? 'bg-white/10 border-[#3EA88C] text-white font-medium' : 'border-transparent text-[#9AA69E] hover:bg-white/5 hover:text-white')}
               >
                 <span className="flex items-center gap-2.5">
@@ -321,7 +244,7 @@ export default function App() {
 
         <div className="px-3 py-4 border-t border-white/10">
           <button
-            onClick={function () { setIsLoggedIn(false); }}
+            onClick={() => setIsLoggedIn(false)}
             className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-md text-sm text-[#9AA69E] hover:bg-white/5 hover:text-white transition-colors"
           >
             <LogOut size={17} />
@@ -372,7 +295,7 @@ export default function App() {
                 ) : (
                   <div>
                     <div className="w-full h-3 rounded-full overflow-hidden flex mb-4">
-                      {stats.disease_breakdown.map(function (d, i) {
+                      {stats.disease_breakdown.map((d, i) => {
                         const pct = totalDiseaseCount > 0 ? (d.count / totalDiseaseCount) * 100 : 0;
                         return (
                           <div key={d.disease} style={{ width: pct + '%', backgroundColor: CHART_SHADES[i % CHART_SHADES.length] }} />
@@ -380,15 +303,13 @@ export default function App() {
                       })}
                     </div>
                     <div className="flex flex-wrap gap-x-6 gap-y-2">
-                      {stats.disease_breakdown.map(function (d, i) {
-                        return (
-                          <div key={d.disease} className="flex items-center gap-2 text-sm">
-                            <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: CHART_SHADES[i % CHART_SHADES.length] }} />
-                            <span className="text-[#1B211D]">{d.disease}</span>
-                            <span className="font-mono text-[#5C6B62]">{d.count}</span>
-                          </div>
-                        );
-                      })}
+                      {stats.disease_breakdown.map((d, i) => (
+                        <div key={d.disease} className="flex items-center gap-2 text-sm">
+                          <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: CHART_SHADES[i % CHART_SHADES.length] }} />
+                          <span className="text-[#1B211D]">{d.disease}</span>
+                          <span className="font-mono text-[#5C6B62]">{d.count}</span>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
@@ -404,43 +325,41 @@ export default function App() {
                 <EmptyState text="Nothing waiting on review." />
               ) : (
                 <div className="space-y-px bg-[#DDE1DA] border border-[#DDE1DA] rounded-lg overflow-hidden">
-                  {moderationCases.map(function (item) {
-                    return (
-                      <div key={item.case_id} className="bg-white p-5 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
-                        <img
-                          src={item.scan_image ? BASE_URL + item.scan_image : ''}
-                          alt="Scan"
-                          className="w-20 h-20 object-cover rounded-md border border-[#DDE1DA] shrink-0"
-                        />
-                        <div className="flex-1">
-                          <p className="font-medium">{item.user_name}</p>
-                          <p className="text-sm text-[#5C6B62]">
-                            Detected: <span className="text-[#0E6B57] font-medium">{item.condition}</span>
-                            <span className="mx-2">·</span>
-                            <span className="font-mono text-xs">{item.case_id}</span>
-                          </p>
-                        </div>
-                        {item.image_status === 'Pending Review' ? (
-                          <div className="flex gap-2">
-                            <button
-                              onClick={function () { handleImageAction(item.case_id, 'Clear'); }}
-                              className="bg-[#0E6B57] hover:bg-[#0B5747] text-white px-3.5 py-2 rounded-md text-sm font-medium transition-colors"
-                            >
-                              Approve & send
-                            </button>
-                            <button
-                              onClick={function () { handleImageAction(item.case_id, 'Retake Requested'); }}
-                              className="border border-[#A23B2E] text-[#A23B2E] hover:bg-[#F7E9E7] px-3.5 py-2 rounded-md text-sm font-medium transition-colors"
-                            >
-                              Request retake
-                            </button>
-                          </div>
-                        ) : (
-                          <Badge tone="neutral">{item.image_status}</Badge>
-                        )}
+                  {moderationCases.map((item) => (
+                    <div key={item.case_id} className="bg-white p-5 flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+                      <img
+                        src={item.scan_image ? MEDIA_URL + item.scan_image : ''}
+                        alt="Scan"
+                        className="w-20 h-20 object-cover rounded-md border border-[#DDE1DA] shrink-0"
+                      />
+                      <div className="flex-1">
+                        <p className="font-medium">{item.user_name}</p>
+                        <p className="text-sm text-[#5C6B62]">
+                          Detected: <span className="text-[#0E6B57] font-medium">{item.condition}</span>
+                          <span className="mx-2">·</span>
+                          <span className="font-mono text-xs">{item.case_id}</span>
+                        </p>
                       </div>
-                    );
-                  })}
+                      {item.image_status === 'Pending Review' ? (
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleImageAction(item.case_id, 'Clear')}
+                            className="bg-[#0E6B57] hover:bg-[#0B5747] text-white px-3.5 py-2 rounded-md text-sm font-medium transition-colors"
+                          >
+                            Approve &amp; send
+                          </button>
+                          <button
+                            onClick={() => handleImageAction(item.case_id, 'Retake Requested')}
+                            className="border border-[#A23B2E] text-[#A23B2E] hover:bg-[#F7E9E7] px-3.5 py-2 rounded-md text-sm font-medium transition-colors"
+                          >
+                            Request retake
+                          </button>
+                        </div>
+                      ) : (
+                        <Badge tone="neutral">{item.image_status}</Badge>
+                      )}
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
@@ -455,28 +374,27 @@ export default function App() {
               ) : (
                 <Table
                   headers={['Patient', 'Transaction ID', 'Amount', 'Screenshot', 'Status', '']}
-                  rows={payments.map(function (p) {
-                    return [
-                      <div>
-                        <p className="font-medium">{p.user_name}</p>
-                        <p className="text-xs font-mono text-[#5C6B62]">{p.case_id}</p>
-                      </div>,
-                      <span className="font-mono text-sm">{p.transaction_id}</span>,
-                      <span className="font-mono text-sm">Rs. {p.amount}</span>,
-                      <a href={p.screenshot ? BASE_URL + p.screenshot : '#'} target="_blank" rel="noreferrer" className="text-[#0E6B57] text-sm font-medium underline underline-offset-2 flex items-center gap-1">
-                        <ImageIcon size={14} /> View
-                      </a>,
-                      <Badge tone={p.status === 'Approved' ? 'success' : 'pending'}>{p.status}</Badge>,
-                      p.status === 'Pending Verification' ? (
-                        <button
-                          onClick={function () { handleApprovePayment(p.payment_id, p.case_id); }}
-                          className="bg-[#0E6B57] hover:bg-[#0B5747] text-white px-3.5 py-1.5 rounded-md text-sm font-medium transition-colors"
-                        >
-                          Approve
-                        </button>
-                      ) : <span className="text-[#0E6B57] text-sm font-medium">Confirmed</span>,
-                    ];
-                  })}
+                  rows={payments.map((p) => [
+                    <div key="patient">
+                      <p className="font-medium">{p.user_name}</p>
+                      <p className="text-xs font-mono text-[#5C6B62]">{p.case_id}</p>
+                    </div>,
+                    <span key="txn" className="font-mono text-sm">{p.transaction_id}</span>,
+                    <span key="amt" className="font-mono text-sm">Rs. {p.amount}</span>,
+                    <a key="ss" href={p.screenshot ? MEDIA_URL + p.screenshot : '#'} target="_blank" rel="noreferrer" className="text-[#0E6B57] text-sm font-medium underline underline-offset-2 flex items-center gap-1">
+                      <ImageIcon size={14} /> View
+                    </a>,
+                    <Badge key="status" tone={p.status === 'Approved' ? 'success' : 'pending'}>{p.status}</Badge>,
+                    p.status === 'Pending Verification' ? (
+                      <button
+                        key="action"
+                        onClick={() => handleApprovePayment(p.payment_id, p.case_id)}
+                        className="bg-[#0E6B57] hover:bg-[#0B5747] text-white px-3.5 py-1.5 rounded-md text-sm font-medium transition-colors"
+                      >
+                        Approve
+                      </button>
+                    ) : <span key="action" className="text-[#0E6B57] text-sm font-medium">Confirmed</span>,
+                  ])}
                 />
               )}
             </div>
@@ -487,7 +405,7 @@ export default function App() {
               <div className="flex items-center justify-between mb-6">
                 <p className="text-sm text-[#5C6B62]">Manage which dermatologists can sign in and review cases.</p>
                 <button
-                  onClick={function () { setShowAddDoctor(true); }}
+                  onClick={() => setShowAddDoctor(true)}
                   className="flex items-center gap-1.5 bg-[#0E6B57] hover:bg-[#0B5747] text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
                 >
                   <Plus size={16} /> Add doctor
@@ -499,28 +417,26 @@ export default function App() {
               ) : (
                 <Table
                   headers={['Name', 'Email', 'Specialty', 'Status', '']}
-                  rows={doctors.map(function (d) {
-                    return [
-                      <span className="font-medium">{d.name}</span>,
-                      <span className="text-sm text-[#5C6B62]">{d.email}</span>,
-                      <span className="text-sm">{d.specialty}</span>,
-                      <Badge tone={d.status === 'Active' ? 'success' : 'neutral'}>{d.status}</Badge>,
-                      <div className="flex gap-2">
-                        <button
-                          onClick={function () { handleToggleDoctor(d.email); }}
-                          className={'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ' + (d.status === 'Active' ? 'border border-[#A23B2E] text-[#A23B2E] hover:bg-[#F7E9E7]' : 'bg-[#0E6B57] hover:bg-[#0B5747] text-white')}
-                        >
-                          <Power size={14} /> {d.status === 'Active' ? 'Deactivate' : 'Activate'}
-                        </button>
-                        <button
-                          onClick={function () { handleDeleteDoctor(d.email); }}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium border border-[#A23B2E] text-[#A23B2E] hover:bg-[#F7E9E7] transition-colors"
-                        >
-                          <Trash2 size={14} /> Delete
-                        </button>
-                      </div>,
-                    ];
-                  })}
+                  rows={doctors.map((d) => [
+                    <span key="name" className="font-medium">{d.name}</span>,
+                    <span key="email" className="text-sm text-[#5C6B62]">{d.email}</span>,
+                    <span key="spec" className="text-sm">{d.specialty}</span>,
+                    <Badge key="status" tone={d.status === 'Active' ? 'success' : 'neutral'}>{d.status}</Badge>,
+                    <div key="actions" className="flex gap-2">
+                      <button
+                        onClick={() => handleToggleDoctor(d.email)}
+                        className={'flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ' + (d.status === 'Active' ? 'border border-[#A23B2E] text-[#A23B2E] hover:bg-[#F7E9E7]' : 'bg-[#0E6B57] hover:bg-[#0B5747] text-white')}
+                      >
+                        <Power size={14} /> {d.status === 'Active' ? 'Deactivate' : 'Activate'}
+                      </button>
+                      <button
+                        onClick={() => handleDeleteDoctor(d.email)}
+                        className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium border border-[#A23B2E] text-[#A23B2E] hover:bg-[#F7E9E7] transition-colors"
+                      >
+                        <Trash2 size={14} /> Delete
+                      </button>
+                    </div>,
+                  ])}
                 />
               )}
             </div>
@@ -535,14 +451,12 @@ export default function App() {
               ) : (
                 <Table
                   headers={['Name', 'Email', 'Age', 'Total scans']}
-                  rows={patients.map(function (p) {
-                    return [
-                      <span className="font-medium">{p.name}</span>,
-                      <span className="text-sm text-[#5C6B62]">{p.email}</span>,
-                      <span className="text-sm font-mono">{p.age != null ? p.age : '-'}</span>,
-                      <span className="text-sm font-mono">{p.total_scans}</span>,
-                    ];
-                  })}
+                  rows={patients.map((p) => [
+                    <span key="name" className="font-medium">{p.name}</span>,
+                    <span key="email" className="text-sm text-[#5C6B62]">{p.email}</span>,
+                    <span key="age" className="text-sm font-mono">{p.age != null ? p.age : '-'}</span>,
+                    <span key="scans" className="text-sm font-mono">{p.total_scans}</span>,
+                  ])}
                 />
               )}
             </div>
@@ -559,21 +473,20 @@ export default function App() {
               ) : (
                 <Table
                   headers={['Patient', 'Case ID', 'Detected', 'Confidence', 'Status', '']}
-                  rows={aiCases.map(function (c) {
-                    return [
-                      <span className="font-medium">{c.user_name}</span>,
-                      <span className="font-mono text-sm">{c.case_number}</span>,
-                      <span className="text-sm text-[#0E6B57] font-medium">{c.disease_detected}</span>,
-                      <span className="font-mono text-sm">{Math.round((c.confidence || 0) * 100)}%</span>,
-                      <Badge tone={c.status === 'approved' ? 'success' : 'pending'}>{c.status}</Badge>,
-                      <button
-                        onClick={function () { setSelectedAiCase(c); }}
-                        className="text-[#0E6B57] text-sm font-medium underline underline-offset-2"
-                      >
-                        View
-                      </button>,
-                    ];
-                  })}
+                  rows={aiCases.map((c) => [
+                    <span key="patient" className="font-medium">{c.user_name}</span>,
+                    <span key="id" className="font-mono text-sm">{c.case_number}</span>,
+                    <span key="detected" className="text-sm text-[#0E6B57] font-medium">{c.disease_detected}</span>,
+                    <span key="conf" className="font-mono text-sm">{Math.round((c.confidence || 0) * 100)}%</span>,
+                    <Badge key="status" tone={c.status === 'approved' ? 'success' : 'pending'}>{c.status}</Badge>,
+                    <button
+                      key="view"
+                      onClick={() => setSelectedAiCase(c)}
+                      className="text-[#0E6B57] text-sm font-medium underline underline-offset-2"
+                    >
+                      View
+                    </button>,
+                  ])}
                 />
               )}
             </div>
@@ -588,15 +501,13 @@ export default function App() {
               ) : (
                 <Table
                   headers={['Case ID', 'Patient', 'Condition', 'Status', 'Date']}
-                  rows={allCases.map(function (c) {
-                    return [
-                      <span className="font-mono text-sm">{c.id}</span>,
-                      <span className="text-sm">{c.name}</span>,
-                      <span className="text-sm text-[#0E6B57] font-medium">{c.issue}</span>,
-                      <Badge tone={c.status === 'approved' ? 'success' : 'pending'}>{c.status}</Badge>,
-                      <span className="text-xs text-[#5C6B62]">{c.date ? new Date(c.date).toLocaleDateString() : '-'}</span>,
-                    ];
-                  })}
+                  rows={allCases.map((c) => [
+                    <span key="id" className="font-mono text-sm">{c.id}</span>,
+                    <span key="name" className="text-sm">{c.name}</span>,
+                    <span key="issue" className="text-sm text-[#0E6B57] font-medium">{c.issue}</span>,
+                    <Badge key="status" tone={c.status === 'approved' ? 'success' : 'pending'}>{c.status}</Badge>,
+                    <span key="date" className="text-xs text-[#5C6B62]">{c.date ? new Date(c.date).toLocaleDateString() : '-'}</span>,
+                  ])}
                 />
               )}
             </div>
@@ -610,14 +521,14 @@ export default function App() {
           <div className="bg-white rounded-lg w-full max-w-sm p-6">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-base font-semibold">Add a new doctor</h2>
-              <button onClick={function () { setShowAddDoctor(false); }} className="text-[#5C6B62]"><X size={18} /></button>
+              <button onClick={() => setShowAddDoctor(false)} className="text-[#5C6B62]"><X size={18} /></button>
             </div>
             <form onSubmit={handleAddDoctor} className="space-y-3.5">
               <div>
                 <label className="block text-sm text-[#5C6B62] mb-1.5">Full name</label>
                 <input
                   type="text" required value={newDoctor.full_name}
-                  onChange={function (e) { setNewDoctor(Object.assign({}, newDoctor, { full_name: e.target.value })); }}
+                  onChange={(e) => setNewDoctor({ ...newDoctor, full_name: e.target.value })}
                   className="w-full border border-[#DDE1DA] rounded-md px-3 py-2 text-sm outline-none focus:border-[#0E6B57]"
                   placeholder="Dr. Ayesha Malik"
                 />
@@ -626,7 +537,7 @@ export default function App() {
                 <label className="block text-sm text-[#5C6B62] mb-1.5">Email</label>
                 <input
                   type="email" required value={newDoctor.email}
-                  onChange={function (e) { setNewDoctor(Object.assign({}, newDoctor, { email: e.target.value })); }}
+                  onChange={(e) => setNewDoctor({ ...newDoctor, email: e.target.value })}
                   className="w-full border border-[#DDE1DA] rounded-md px-3 py-2 text-sm outline-none focus:border-[#0E6B57]"
                   placeholder="doctor@dermacare.com"
                 />
@@ -635,7 +546,7 @@ export default function App() {
                 <label className="block text-sm text-[#5C6B62] mb-1.5">Temporary password</label>
                 <input
                   type="text" required value={newDoctor.password}
-                  onChange={function (e) { setNewDoctor(Object.assign({}, newDoctor, { password: e.target.value })); }}
+                  onChange={(e) => setNewDoctor({ ...newDoctor, password: e.target.value })}
                   className="w-full border border-[#DDE1DA] rounded-md px-3 py-2 text-sm outline-none focus:border-[#0E6B57]"
                   placeholder="Doctor will use this to sign in"
                 />
@@ -644,7 +555,7 @@ export default function App() {
                 <label className="block text-sm text-[#5C6B62] mb-1.5">Specialty</label>
                 <input
                   type="text" value={newDoctor.specialty}
-                  onChange={function (e) { setNewDoctor(Object.assign({}, newDoctor, { specialty: e.target.value })); }}
+                  onChange={(e) => setNewDoctor({ ...newDoctor, specialty: e.target.value })}
                   className="w-full border border-[#DDE1DA] rounded-md px-3 py-2 text-sm outline-none focus:border-[#0E6B57]"
                   placeholder="e.g. Senior Dermatologist"
                 />
@@ -665,12 +576,12 @@ export default function App() {
           <div className="bg-white rounded-lg w-full max-w-md p-6">
             <div className="flex items-center justify-between mb-5">
               <h2 className="text-base font-semibold">Case {selectedAiCase.case_number}</h2>
-              <button onClick={function () { setSelectedAiCase(null); }} className="text-[#5C6B62]"><X size={18} /></button>
+              <button onClick={() => setSelectedAiCase(null)} className="text-[#5C6B62]"><X size={18} /></button>
             </div>
 
             {selectedAiCase.scan_image && (
               <img
-                src={BASE_URL + selectedAiCase.scan_image}
+                src={MEDIA_URL + selectedAiCase.scan_image}
                 alt="Scan"
                 className="w-full h-48 object-cover rounded-md border border-[#DDE1DA] mb-4"
               />
@@ -696,61 +607,60 @@ export default function App() {
   );
 }
 
-function StatTile(props) {
-  const Icon = props.icon;
+// reusable UI 
+
+function StatTile({ label, value, icon: Icon }) {
   return (
     <div className="bg-white p-5">
       <div className="flex items-center gap-2 text-[#5C6B62] mb-2">
         <Icon size={15} />
-        <p className="text-sm">{props.label}</p>
+        <p className="text-sm">{label}</p>
       </div>
-      <p className="text-2xl font-semibold font-mono">{props.value}</p>
+      <p className="text-2xl font-semibold font-mono">{value}</p>
     </div>
   );
 }
 
-function Badge(props) {
+function Badge({ tone, children }) {
   const tones = {
     success: 'bg-[#E4F2EE] text-[#0E6B57]',
     pending: 'bg-[#FBF1DF] text-[#B4791C]',
     neutral: 'bg-[#F0F1EE] text-[#5C6B62]',
   };
   return (
-    <span className={'inline-block px-2.5 py-1 rounded-full text-xs font-medium ' + (tones[props.tone] || tones.neutral)}>
-      {props.children}
+    <span className={'inline-block px-2.5 py-1 rounded-full text-xs font-medium ' + (tones[tone] || tones.neutral)}>
+      {children}
     </span>
   );
 }
 
-function EmptyState(props) {
+function EmptyState({ text }) {
   return (
     <div className="border border-dashed border-[#DDE1DA] rounded-lg py-16 text-center">
-      <p className="text-sm text-[#5C6B62]">{props.text}</p>
+      <p className="text-sm text-[#5C6B62]">{text}</p>
     </div>
   );
 }
 
-function Table(props) {
+function Table({ headers, rows }) {
   return (
     <div className="bg-white border border-[#DDE1DA] rounded-lg overflow-hidden overflow-x-auto">
       <table className="w-full text-left border-collapse">
         <thead>
           <tr className="border-b border-[#DDE1DA]">
-            {props.headers.map(function (h, i) {
-              return <th key={i} className="text-sm font-medium text-[#5C6B62] px-5 py-3">{h}</th>;
-            })}
+            {headers.map((h, i) => (
+              <th key={i} className="text-sm font-medium text-[#5C6B62] px-5 py-3">{h}</th>
+            ))}
           </tr>
         </thead>
         <tbody>
-          {props.rows.map(function (row, i) {
-            return (
-              <tr key={i} className={i !== props.rows.length - 1 ? 'border-b border-[#F0F1EE]' : ''}>
-                {row.map(function (cell, j) {
-                  return <td key={j} className="px-5 py-3.5">{cell}</td>;
-                })}
-              </tr>
-            );
-          })}
+          {rows.map((row, i) => (
+            <tr key={i} className={i !== rows.length - 1 ? 'border-b border-[#F0F1EE]' : ''}>
+              {row.map((cell, j) => (
+                <td key={j} className="px-5 py-3.5">{cell}</td>
+              ))}
+            </tr>
+          ))}
         </tbody>
       </table>
     </div>
