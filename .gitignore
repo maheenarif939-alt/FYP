@@ -1,3 +1,21 @@
+# Python
+venv/
+.venv/
+env/
+ENV/
+__pycache__/
+*.py[cod]
+*.pyd
+
+# Environment
+.env
+.env.*
+
+# IDE
+.vscode/
+.idea/
+EOFvenv/
+
 .env
 __pycache__/
 *.pyc

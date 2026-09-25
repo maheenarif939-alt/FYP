@@ -56,7 +56,7 @@ submitted_at: datetime
 
 ---
 
-## 3. `password_resets` — OTP-based password reset
+## 3. `password_resets` — OTP-based password 
 
 | Field | Type | Notes |
 |---|---|---|
