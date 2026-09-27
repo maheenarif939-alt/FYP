@@ -1,7 +1,8 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Dimensions, FlatList, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { getCurrentUser, isLoggedIn, loadSession } from '../api/client';
 
 const { width } = Dimensions.get('window');
 
@@ -14,12 +15,37 @@ const slides = [
 export default function Onboarding() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef(null);
-  const router = useRouter(); // Expo Router ka hook
+  const router = useRouter();
+
+  useEffect(() => {
+    loadSession();
+  }, []);
+
+  // check user login or not 
+  const handleContinue = async () => {
+    await loadSession();
+
+    if (isLoggedIn()) {
+      const user = getCurrentUser();
+      
+      // for doctor 
+      if (user?.role === 'doctor') {
+        router.replace('/doctor-dashboard');
+      } 
+      // for users 
+      else {
+        router.replace('/dashboard');
+      }
+    } else {
+      // if not registered 
+      router.replace('/login');
+    }
+  };
 
   return (
     <View style={styles.container}>
-      {/*  Button */}
-      <TouchableOpacity style={styles.skipBtn} onPress={() => router.replace('/login')}>
+      {/* Skip Button */}
+      <TouchableOpacity style={styles.skipBtn} onPress={handleContinue}>
         <Text style={styles.skipText}>Skip</Text>
       </TouchableOpacity>
 
@@ -33,7 +59,6 @@ export default function Onboarding() {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.slide}>
-            {/* Image Box  */}
             <View style={styles.imageBox}>
               <Image source={item.img} style={styles.image} />
             </View>
@@ -42,6 +67,7 @@ export default function Onboarding() {
           </View>
         )}
       />
+
       {/* Dots */}
       <View style={styles.pagination}>
         {slides.map((_, i) => (
@@ -52,7 +78,7 @@ export default function Onboarding() {
       {/* Action Button */}
       <TouchableOpacity 
         style={styles.button} 
-        onPress={() => currentIndex < 2 ? flatListRef.current.scrollToIndex({ index: currentIndex + 1 }) : router.replace('/login')}
+        onPress={() => currentIndex < 2 ? flatListRef.current.scrollToIndex({ index: currentIndex + 1 }) : handleContinue()}
       >
         <LinearGradient colors={['#3b82f6', '#8b5cf6']} style={styles.gradient}>
           <Text style={styles.btnText}>{currentIndex === 2 ? 'Get Started' : 'Next'}</Text>
