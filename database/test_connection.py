@@ -1,12 +1,3 @@
-"""
-test_connection.py
--------------------
-Quick check that the MongoDB connection works and lists collections.
-
-Run:
-    python test_connection.py
-"""
-
 from mongodb import db
 
 try:
