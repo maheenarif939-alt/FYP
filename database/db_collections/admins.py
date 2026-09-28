@@ -1,24 +1,3 @@
-"""
-admins.py
----------
-The 'admins' collection: separate login for the admin panel, with
-its own bcrypt-hashed password (independent of the users collection's
-Django-hasher-based passwords).
-
-This file is self-contained: schema, indexes, AND the script to add
-or update the real admin account all live here.
-
-HOW TO ADD YOUR REAL ADMIN:
-1. Edit ADMIN_NAME / ADMIN_EMAIL / ADMIN_PASSWORD below.
-2. Run this file directly:
-       python -m db_collections.admins
-3. Safe to run again later — it updates the password if the email
-   already exists, instead of creating a duplicate.
-
-Requires:
-    pip install bcrypt
-"""
-
 import datetime
 import bcrypt
 
@@ -36,12 +15,9 @@ SCHEMA = {
     }
 }
 
-# ---------------------------------------------------------------
-# EDIT THESE with the real admin's details before running this file
-# ---------------------------------------------------------------
-ADMIN_NAME = "Eman"                          # <-- change
-ADMIN_EMAIL = "eman@dermacareme.com"         # <-- change
-ADMIN_PASSWORD = "PutARealPasswordHere123!"  # <-- change
+ADMIN_NAME = "Eman"                          
+ADMIN_EMAIL = "eman@dermacareme.com"        
+ADMIN_PASSWORD = "Eman@143"  
 
 
 def create_indexes(db):
@@ -53,7 +29,6 @@ def _hash_password(plain_password: str) -> str:
 
 
 def add_or_update_admin(db):
-    """Adds ADMIN_EMAIL as an admin, or updates its name/password if it already exists."""
     admins = db[COLLECTION_NAME]
     existing = admins.find_one({"email": ADMIN_EMAIL})
     hashed = _hash_password(ADMIN_PASSWORD)
@@ -76,7 +51,6 @@ def add_or_update_admin(db):
 
 
 if __name__ == "__main__":
-    # Run with: python -m db_collections.admins  (from the database/ folder)
     from mongodb import db
     add_or_update_admin(db)
 
