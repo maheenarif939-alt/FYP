@@ -1,10 +1,3 @@
-"""
-mongodb.py
-----------
-Central MongoDB connection — matches what your backend's api/mongodb.py
-already does. Kept here too so the setup/seed scripts in this folder
-can run independently.
-"""
 
 import os
 from pymongo import MongoClient
