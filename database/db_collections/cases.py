@@ -1,23 +1,14 @@
-"""
-cases.py
---------
-The 'cases' collection: one document per patient scan/case.
-Payment is EMBEDDED inside each case document (see the 'payment'
-field below) — there is no separate payments collection, matching
-api/views.py's SubmitPaymentView exactly.
-"""
-
 COLLECTION_NAME = "cases"
 
 SCHEMA = {
     "bsonType": "object",
     "required": ["patient_id", "status"],
     "properties": {
-        "patient_id": {"bsonType": "objectId"},          # ref -> users._id
+        "patient_id": {"bsonType": "objectId"},          
         "case_number": {"bsonType": ["string", "int"]},
-        "image_file_id": {"bsonType": ["string", "null"]},  # GridFS ref
+        "image_file_id": {"bsonType": ["string", "null"]},  
         "status": {"enum": ["uploaded", "payment_pending", "doctor_pending", "approved", "rejected"]},
-        "image_status": {"bsonType": ["string", "null"]},   # e.g. "Pending Review", "Clear", "Retake Requested"
+        "image_status": {"bsonType": ["string", "null"]},   
         "disease_detected": {"bsonType": ["string", "null"]},
         "confidence": {"bsonType": ["double", "int", "null"]},
         "suggested_medicine": {"bsonType": ["string", "null"]},
@@ -28,7 +19,7 @@ SCHEMA = {
                 "transaction_id": {"bsonType": "string"},
                 "method": {"bsonType": "string"},
                 "amount": {"bsonType": "int"},
-                "status": {"bsonType": "string"},          # "Pending Verification" | "Approved" | ...
+                "status": {"bsonType": "string"},          
                 "screenshot_file_id": {"bsonType": "string"},  # GridFS ref
                 "submitted_at": {"bsonType": "date"},
             }
