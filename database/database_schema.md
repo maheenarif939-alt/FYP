@@ -1,132 +1,111 @@
-# DermaCareMe — Real Database Schema (matches actual backend code)
 
-Ye schema aapke asli `views.py` se nikala gaya hai — koi assumption nahi, sirf wo cheezein jo code mein real hain.
+users
 
----
+_id: ObjectId
+full_name: string
+email: string
+password: string (hashed)
+role: "patient" | "doctor"
+email_verified: bool
+age: int | null
+specialty: string
+phone: string
+hospital: string
+experience_years: int
+is_doctor_approved: bool
+is_active: bool
+verification_doc_file_id: string
+created_at: datetime
 
-## 1. `users` — Patient AUR Doctor dono isi collection mein (role field se pehchane jate hain)
 
-| Field | Type | Kis role mein hota hai |
-|---|---|---|
-| `_id` | ObjectId | dono |
-| `full_name` | string | dono |
-| `email` | string | dono — **unique** |
-| `password` | string (hashed) | dono |
-| `role` | string | `"patient"` \| `"doctor"` |
-| `email_verified` | bool | patient: shuru mein `false`, doctor: `true` (signup pe hi) |
-| `age` | int / null | patient |
-| `specialty` | string | doctor (default: "Dermatologist") |
-| `phone` | string | doctor |
-| `hospital` | string | doctor |
-| `experience_years` | int | doctor |
-| `is_doctor_approved` | bool | doctor |
-| `is_active` | bool | doctor |
-| `verification_doc_file_id` | string (GridFS ref) | doctor |
-| `created_at` | datetime | dono |
 
-**Note:** Field ka naam `password` hai, `password_hash` nahi.
+cases
 
----
+_id: ObjectId
+patient_id: ObjectId
+case_number: string | int
+image_file_id: string
+status: uploaded | payment_pending | doctor_pending | approved | rejected
+image_status: Pending Review
+disease_detected: string | null
+confidence: float | null
+suggested_medicine: string | null
+doctor_note: string | null
+payment: object
+created_at: datetime
 
-## 2. `cases` — Payment bhi ISI ke andar embedded hai
 
-| Field | Type | Notes |
-|---|---|---|
-| `_id` | ObjectId | auto |
-| `patient_id` | ObjectId | ref → `users._id` |
-| `case_number` | string/int | `next_case_number()` se generate hota hai |
-| `image_file_id` | string (GridFS ref) | scan image |
-| `status` | string | `uploaded` → `payment_pending` → `doctor_pending` → `approved` / `rejected` |
-| `image_status` | string | `Pending Review` → (admin update karta hai) |
-| `disease_detected` | string / null | AI se |
-| `confidence` | float / null | AI se |
-| `suggested_medicine` | string / null | |
-| `doctor_note` | string / null | doctor verify karte waqt |
-| `payment` | **embedded object** | `{transaction_id, method, amount, status, screenshot_file_id, submitted_at}` |
-| `created_at` | datetime | |
 
-**`payment` object ke andar:**
-```
+payment
+
 transaction_id: string
-method: string ("jazzcash" etc.)
-amount: int (CONSULTATION_FEE)
-status: "Pending Verification" | (admin approve/reject karega)
-screenshot_file_id: string (GridFS ref)
+method: string
+amount: int
+status: Pending Verification
+screenshot_file_id: string
 submitted_at: datetime
-```
 
----
 
-## 3. `email_verifications` — Signup ke baad email verify karne ke liye OTP
 
-| Field | Type | Notes |
-|---|---|---|
-| `_id` | ObjectId | auto |
-| `email` | string | |
-| `role` | string | `"patient"` \| `"doctor"` |
-| `code` | string | 6-digit OTP |
-| `expires_at` | datetime | 10 min se expire (TTL index se auto-delete) |
-| `created_at` | datetime | |
+email_verifications
 
-**Flow:** Patient signup karte waqt `email_verified: false` ke sath account banta hai, saath hi ek OTP is collection mein save hoke email pe bhej diya jata hai. `verify_email` endpoint code check karke `users.email_verified` ko `true` kar deta hai. Doctor signup pe seedha `email_verified: true` set hota hai (verify karne ki zaroorat nahi).
+_id: ObjectId
+email: string
+role: "patient" | "doctor"
+code: string
+expires_at: datetime
+created_at: datetime
 
----
 
-## 4. `password_resets` — OTP-based password reset
 
-| Field | Type | Notes |
-|---|---|---|
-| `_id` | ObjectId | auto |
-| `email` | string | |
-| `role` | string | `"patient"` \| `"doctor"` |
-| `code` | string | 6-digit OTP |
-| `expires_at` | datetime | 10 min se expire |
-| `created_at` | datetime | |
+password_resets
 
----
+_id: ObjectId
+email: string
+role: "patient" | "doctor"
+code: string
+expires_at: datetime
+created_at: datetime
 
-## 5. `admins` — Ab database-based hai (pehle sirf `.env` compare hota tha)
 
-| Field | Type | Notes |
-|---|---|---|
-| `_id` | ObjectId | auto |
-| `full_name` | string | |
-| `email` | string | **unique** |
-| `password` | string | **bcrypt** se hashed (users wale `password` field se alag hashing scheme, kyunki wo Django ka PBKDF2 use karte hain) |
-| `is_active` | bool | |
-| `created_at` | datetime | |
 
-`add_admin.py` script se real admin add/update karein — password kabhi plain text mein save nahi hota.
+admins
 
-**Zaroori:** Backend ka `admin_views.py` update karna hoga (neeche diya gaya code) taake ye `.env` ke fixed credentials ki jagah is collection ko check kare.
+_id: ObjectId
+full_name: string
+email: string
+password: string
+is_active: bool
+created_at: datetime
 
----
 
-## 6. GridFS — Images (automatic, `fs.files` / `fs.chunks`)
 
-3 jagah use hoti hai:
-- `cases.image_file_id` — scan image
-- `cases.payment.screenshot_file_id` — payment proof
-- `users.verification_doc_file_id` — doctor ka verification document
+GridFS
 
----
+fs.files
+fs.chunks
 
-## 7. `diseases` (optional — agar future mein AI results ko describe karne ke liye reference chahiye)
+cases.image_file_id
+cases.payment.screenshot_file_id
+users.verification_doc_file_id
 
-| Field | Type |
-|---|---|
-| `name` | string |
-| `description` | string |
-| `symptoms` | array[string] |
-| `active` | bool |
 
-Ye aapke asli code mein abhi kahin use nahi ho rahi — optional hai.
 
----
+diseases
 
-## Zaroori Indexes
+name: string
+description: string
+symptoms: array[string]
+active: bool
 
-- `users.email` → unique
-- `cases.patient_id` → fast lookup
-- `cases.status` → admin/doctor queue ke liye
-- `password_resets.email` + `role` → fast lookup, aur `expires_at` pe TTL index (auto-delete expired codes)
+
+
+Indexes
+
+users.email
+cases.patient_id
+cases.status
+password_resets.email
+password_resets.role
+password_resets.expires_at
+
