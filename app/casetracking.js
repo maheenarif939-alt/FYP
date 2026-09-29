@@ -9,6 +9,23 @@ import { getCaseDetail, getMyCases } from '../api/client';
 // steps
 const STEP_ORDER = ['uploaded', 'payment_pending', 'processing', 'doctor_pending', 'approved'];
 
+// Pakistan Timezone (PKT - UTC+5) Formatter
+const formatPakistanTime = (dateString) => {
+  if (!dateString) return '';
+  const utcString = dateString.endsWith('Z') ? dateString : dateString + 'Z';
+  const date = new Date(utcString);
+  
+  return date.toLocaleString('en-PK', {
+    timeZone: 'Asia/Karachi',
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true,
+  });
+};
+
 export default function CaseTracking() {
   const router = useRouter();
   const { caseId } = useLocalSearchParams();
@@ -104,7 +121,7 @@ export default function CaseTracking() {
                     <Text style={[styles.badgeText, isApproved && { color: '#166534' }]}>{caseData.status_label}</Text>
                   </View>
                 </View>
-                <Text style={styles.caseMeta}>Submitted: {new Date(caseData.created_at).toLocaleString()}</Text>
+                <Text style={styles.caseMeta}>Submitted: {formatPakistanTime(caseData.created_at)}</Text>
                 {!!caseData.disease_detected && (
                   <Text style={styles.caseMeta}>AI Detected: {caseData.disease_detected} ({Math.round((caseData.confidence || 0) * 100)}%)</Text>
                 )}
